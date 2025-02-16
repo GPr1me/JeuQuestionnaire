@@ -1,4 +1,4 @@
-using JeuQuestionnaire.Components;
+using Main.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
