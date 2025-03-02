@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Main", "Main\Main.csproj", 
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{132CE48C-51A8-4C72-A5FE-CCA759A54D6E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.Client", "..\SignalR.Client\SignalR.Client.csproj", "{C74B72B7-F176-497E-B565-488D361A765E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game.Core", "..\Game.Core\Game.Core.csproj", "{F45DBFCF-F115-4A94-84F4-DB2C47C7A525}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{132CE48C-51A8-4C72-A5FE-CCA759A54D6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{132CE48C-51A8-4C72-A5FE-CCA759A54D6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{132CE48C-51A8-4C72-A5FE-CCA759A54D6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C74B72B7-F176-497E-B565-488D361A765E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C74B72B7-F176-497E-B565-488D361A765E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C74B72B7-F176-497E-B565-488D361A765E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C74B72B7-F176-497E-B565-488D361A765E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F45DBFCF-F115-4A94-84F4-DB2C47C7A525}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F45DBFCF-F115-4A94-84F4-DB2C47C7A525}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F45DBFCF-F115-4A94-84F4-DB2C47C7A525}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F45DBFCF-F115-4A94-84F4-DB2C47C7A525}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
