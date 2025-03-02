@@ -1,8 +1,11 @@
 ﻿@page "/test"
 
 <h3>Test</h3>
-
-<iframe src="swagger" style="width:90%;height:1200px;border:none;" />
+#if DEBUG
+  <iframe src="swagger" style="width:90%;height:1200px;border:none;" />
+#else
+    <p>Page de test (release)</p>
+#endif
 
 @code {
 

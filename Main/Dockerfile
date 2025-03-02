@@ -10,9 +10,11 @@ EXPOSE 8081
 
 # This stage is used to build the service project
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-ARG BUILD_CONFIGURATION=Build
+ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Main/Main.csproj", "Main/"]
+COPY ["Game.Core/Game.Core.csproj", "Game.Core/"]
+COPY ["SignalR.Client/SignalR.Client.csproj", "SignalR.Client/"]
 RUN dotnet restore "./Main/Main.csproj"
 COPY . .
 WORKDIR "/src/Main"
@@ -20,7 +22,7 @@ RUN dotnet build "./Main.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
-ARG BUILD_CONFIGURATION=Build
+ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./Main.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
