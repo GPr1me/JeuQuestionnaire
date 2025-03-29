@@ -15,7 +15,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Game.App\Game.App.csproj" />
     <ProjectReference Include="..\Game.Core\Game.Core.csproj" />
+    <ProjectReference Include="..\Game.SignalR.Connector\Game.SignalR.Connector.csproj" />
     <ProjectReference Include="..\SignalR.Client\SignalR.Client.csproj" />
   </ItemGroup>
 

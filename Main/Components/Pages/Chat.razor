@@ -1,0 +1,72 @@
+﻿@using Game.App.Services.Interfaces
+@using Game.SignalR.Connector
+@using Microsoft.AspNetCore.SignalR.Client
+
+@inject NavigationManager Navigation
+@inject IGameService GameService
+
+@page "/chat"
+
+<h3>Chat</h3>
+
+<div>
+  <h4>Connected Users</h4>
+  <ul>
+    @foreach (var player in GameService.Players)
+    {
+      <li>@player</li>
+    }
+  </ul>
+</div>
+
+<div>
+  <h4>Chat History</h4>
+  <ul>
+    @foreach (var message in chatHistory)
+    {
+      <li>@message</li>
+    }
+  </ul>
+</div>
+
+<input @bind="message" placeholder="Type a message" />
+<button @onclick="SendMessage">Send</button>
+
+@code {
+  private HubConnection? hubConnection;
+  private List<string> chatHistory = new List<string>();
+  private string message = string.Empty;
+
+  protected override async Task OnInitializedAsync()
+  {
+    hubConnection = new HubConnectionBuilder()
+        .WithUrl(Navigation.ToAbsoluteUri(GameHub.HubUrl))
+        .Build();
+
+    hubConnection.On<string>("ReceiveMessage", (message) =>
+    {
+      chatHistory.Add(message);
+      StateHasChanged();
+    });
+
+    await hubConnection.StartAsync();
+    chatHistory = GameService.GetChatHistory();
+  }
+
+  private async Task SendMessage()
+  {
+    if (hubConnection is not null)
+    {
+      await hubConnection.SendAsync("SendMessage", message);
+      message = string.Empty;
+    }
+  }
+
+  public async ValueTask DisposeAsync()
+  {
+    if (hubConnection is not null)
+    {
+      await hubConnection.DisposeAsync();
+    }
+  }
+ }

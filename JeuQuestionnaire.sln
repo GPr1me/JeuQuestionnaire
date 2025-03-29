@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.Client", "SignalR.C
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{A05E2558-B290-4610-AB78-5811499141ED}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game.SignalR.Connector", "Game.SignalR.Connector\Game.SignalR.Connector.csproj", "{3223E7AB-93AC-4A2A-AACB-F7CE4EACD52C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game.App", "Game.App\Game.App.csproj", "{58AB9B35-CA58-4510-AB49-A72E7214BACB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,8 +37,19 @@ Global
 		{A05E2558-B290-4610-AB78-5811499141ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A05E2558-B290-4610-AB78-5811499141ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A05E2558-B290-4610-AB78-5811499141ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3223E7AB-93AC-4A2A-AACB-F7CE4EACD52C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3223E7AB-93AC-4A2A-AACB-F7CE4EACD52C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3223E7AB-93AC-4A2A-AACB-F7CE4EACD52C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3223E7AB-93AC-4A2A-AACB-F7CE4EACD52C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58AB9B35-CA58-4510-AB49-A72E7214BACB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58AB9B35-CA58-4510-AB49-A72E7214BACB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58AB9B35-CA58-4510-AB49-A72E7214BACB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58AB9B35-CA58-4510-AB49-A72E7214BACB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FA3D3966-A002-4F45-B46C-67B948761907}
 	EndGlobalSection
 EndGlobal

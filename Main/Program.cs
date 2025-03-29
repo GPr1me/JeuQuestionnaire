@@ -1,3 +1,6 @@
+using Game.App.Services;
+using Game.App.Services.Interfaces;
+using Game.SignalR.Connector;
 using Main.Components;
 using Microsoft.OpenApi.Models;
 using SignalR.Client;
@@ -7,6 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddSingleton<IGameService, GameService>();
 
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton(sp => new HubClient(builder.Configuration.GetSection("SignalRHubConnection").Get<HubConnectionSettings>()!,
@@ -49,5 +54,9 @@ app.UseAntiforgery();
 app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 
 app.MapControllers();
+
+app.MapHub<GameHub>(GameHub.HubUrl);
+
+app.Run();
 
 app.Run();
