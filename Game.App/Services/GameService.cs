@@ -11,6 +11,7 @@ namespace Game.App.Services
 
     public void AddPlayer(IPAddress? playerIp)
     {
+      if (playerIp is null) return;
       var player = ValidateAndToString(playerIp);
       Players.Add(player);
       _chatHistory.TryAdd(player, []);
@@ -18,6 +19,7 @@ namespace Game.App.Services
 
     public void RemovePlayer(IPAddress? playerIp)
     {
+      if (playerIp is null) return;
       var player = ValidateAndToString(playerIp);
       Players.Remove(player);
       _chatHistory.TryRemove(player, out _);
@@ -25,6 +27,7 @@ namespace Game.App.Services
 
     public void SendMessage(IPAddress? playerIp, string message)
     {
+      if (playerIp is null) return;
       var player = ValidateAndToString(playerIp);
       if (_chatHistory.TryGetValue(player, out List<string>? value))
       {
