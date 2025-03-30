@@ -8,8 +8,7 @@ using SignalR.Client;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 
 builder.Services.AddSingleton<IGameService, GameService>();
 
@@ -56,7 +55,5 @@ app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 app.MapControllers();
 
 app.MapHub<GameHub>(GameHub.HubUrl);
-
-app.Run();
 
 app.Run();
