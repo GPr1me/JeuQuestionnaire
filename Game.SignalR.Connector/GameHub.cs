@@ -34,6 +34,11 @@ namespace Game.SignalR.Connector
       _gameService.SendMessage(GetClientIp(), message);
     }
 
+    public void ReceiveMessage(string message)
+    {
+      Clients.All.SendAsync("ReceiveMessage", message);
+    }
+
     #endregion
 
     #region Private functions

@@ -43,7 +43,7 @@
         .WithUrl(Navigation.ToAbsoluteUri(GameHub.HubUrl))
         .Build();
 
-    hubConnection.On<string>("ReceiveMessage", (message) =>
+    hubConnection.On<string>("SendMessage", (message) =>
     {
       chatHistory.Add(message);
       StateHasChanged();
