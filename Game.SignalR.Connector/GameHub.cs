@@ -17,26 +17,62 @@ namespace Game.SignalR.Connector
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-      _gameService.RemovePlayer(GetClientIp());
-      await base.OnDisconnectedAsync(exception);
+      try
+      {
+        _gameService.RemovePlayer(GetClientIp());
+        await base.OnDisconnectedAsync(exception);
+      }
+      catch (Exception ex)
+      {
+        // Log the exception
+        Console.WriteLine($"Error in OnDisconnectedAsync: {ex.Message}");
+        throw;
+      }
     }
 
     public override async Task OnConnectedAsync()
     {
-      _gameService.AddPlayer(GetClientIp());
-      await base.OnConnectedAsync();
+      try
+      {
+        _gameService.AddPlayer(GetClientIp());
+        await base.OnConnectedAsync();
+      }
+      catch (Exception ex)
+      {
+        // Log the exception
+        Console.WriteLine($"Error in OnConnectedAsync: {ex.Message}");
+        throw;
+      }
     }
 
     #region Commands
 
     public void SendMessage(string message)
     {
-      _gameService.SendMessage(GetClientIp(), message);
+      try
+      {
+        _gameService.SendMessage(GetClientIp(), message);
+      }
+      catch (Exception ex)
+      {
+        // Log the exception
+        Console.WriteLine($"Error in SendMessage: {ex.Message}");
+        throw;
+      }
     }
 
     public void ReceiveMessage(string message)
     {
-      Clients.All.SendAsync("ReceiveMessage", message);
+      try
+      {
+        Clients.All.SendAsync("ReceiveMessage", message);
+      }
+      catch (Exception ex)
+      {
+        // Log the exception
+        Console.WriteLine($"Error in ReceiveMessage: {ex.Message}");
+        throw;
+      }
     }
 
     #endregion
