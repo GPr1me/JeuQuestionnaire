@@ -4,3 +4,5 @@ services:
     build:
       context: .
       dockerfile: Game/Game/Dockerfile
+    networks:
+      - default

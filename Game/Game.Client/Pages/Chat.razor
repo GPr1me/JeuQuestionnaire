@@ -6,6 +6,8 @@
 @implements IAsyncDisposable
 @inject IGameService GameService
 
+@rendermode InteractiveWebAssembly
+
 @page "/chat"
 
 <h3>Chat</h3>
@@ -31,18 +33,7 @@
 </div>
 
 <input @bind="message" placeholder="Type a message" />
-<button @onclick="SendMessage">Send</button>  
-
-@code {  
- private async Task SendMessage()  
- {  
-   if (!string.IsNullOrWhiteSpace(message) && hubConnection is not null)  
-   {  
-     await hubConnection.SendAsync("SendMessage", message);  
-     message = string.Empty;  
-   }  
- }  
-}
+<button @onclick="SendMessage">Send</button>
 
 @code {
   private HubConnection? hubConnection;
@@ -62,7 +53,6 @@
 
     hubConnection.On<string>("SendMessage", (message) =>
     {
-      chatHistory.Add(message);
       StateHasChanged();
     });
 
@@ -70,14 +60,14 @@
     chatHistory = GameService.GetChatHistory();
   }
 
-  // private async Task SendMessage()
-  // {
-  //   if (hubConnection is not null)
-  //   {
-  //     await hubConnection.SendAsync("SendMessage", message);
-  //     message = string.Empty;
-  //   }
-  // }
+  private async Task SendMessage()
+  {
+    if (hubConnection is not null)
+    {
+      await hubConnection.SendAsync("SendMessage", message);
+      message = string.Empty;
+    }
+  }
 
   public async ValueTask DisposeAsync()
   {

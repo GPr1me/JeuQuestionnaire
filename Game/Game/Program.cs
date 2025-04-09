@@ -1,7 +1,8 @@
 using Game.App.Services;
 using Game.App.Services.Interfaces;
 using Game.Components;
-using Microsoft.AspNetCore.HttpOverrides;
+using Game.SignalR.Connector;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents().AddInteractiveWebAssemblyComponents();
 builder.Services.AddSingleton<IGameService, GameService>();
 
+builder.Services.AddSignalR();
 
 builder.Services.AddControllers();
 
@@ -23,6 +25,12 @@ builder.Services.AddCors(options =>
   });
 });
 
+builder.Services.AddResponseCompression(opts =>
+{
+  opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+      ["application/octet-stream"]);
+});
+
 // Add Swagger services
 builder.Services.AddSwaggerGen(c =>
 {
@@ -30,6 +38,8 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
+
+app.UseResponseCompression();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -45,11 +55,6 @@ else
 
 app.UseHttpsRedirection();
 
-app.UseForwardedHeaders(new ForwardedHeadersOptions
-{
-  ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-});
-
 app.UseStaticFiles();
 
 app.UseRouting();
@@ -59,5 +64,7 @@ app.UseAntiforgery();
 app.MapRazorComponents<App>()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(Game.Client._Imports).Assembly);
+
+app.MapHub<GameHub>(GameHub.HubUrl);
 
 app.Run();
