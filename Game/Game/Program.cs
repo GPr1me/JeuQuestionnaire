@@ -1,25 +1,18 @@
 using Game.App.Services;
 using Game.App.Services.Interfaces;
-using Game.SignalR.Connector;
-using Main.Components;
+using Game.Components;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.OpenApi.Models;
-using SignalR.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorComponents().AddInteractiveServerComponents();
-
+builder.Services.AddRazorComponents().AddInteractiveWebAssemblyComponents();
 builder.Services.AddSingleton<IGameService, GameService>();
 
-builder.Services.AddHttpClient();
-builder.Services.AddSingleton(sp => new HubClient(builder.Configuration.GetSection("SignalRHubConnection").Get<HubConnectionSettings>()!,
-                                                     sp.GetRequiredService<ILogger<HubClient>>()));
 
 builder.Services.AddControllers();
 
-// Add CORS policy
 builder.Services.AddCors(options =>
 {
   options.AddDefaultPolicy(builder =>
@@ -39,7 +32,11 @@ builder.Services.AddSwaggerGen(c =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
+{
+  app.UseWebAssemblyDebugging();
+}
+else
 {
   app.UseExceptionHandler("/Error", createScopeForErrors: true);
   // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
@@ -54,21 +51,13 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 });
 
 app.UseStaticFiles();
-app.UseAntiforgery();
-
-app.UseSwagger();
-app.UseSwaggerUI(c =>
-{
-  c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-});
-
 
 app.UseRouting();
 app.UseCors();
 app.UseAntiforgery();
-app.MapBlazorHub();
-app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
-app.MapControllers();
-app.MapHub<GameHub>(GameHub.HubUrl);
+
+app.MapRazorComponents<App>()
+    .AddInteractiveWebAssemblyRenderMode()
+    .AddAdditionalAssemblies(typeof(Game.Client._Imports).Assembly);
 
 app.Run();

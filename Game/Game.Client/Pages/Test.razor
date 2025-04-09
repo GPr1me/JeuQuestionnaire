@@ -1,0 +1,12 @@
+﻿@page "/test"
+
+<h3>Test</h3>
+#if DEBUG
+  <iframe src="swagger" style="width:90%;height:1200px;border:none;" />
+#else
+    <p>Page de test (release)</p>
+#endif
+
+@code {
+
+}
