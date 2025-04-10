@@ -5,7 +5,7 @@ using System.Net;
 
 namespace Game.SignalR.Connector
 {
-  public class GameHub : Hub
+  public sealed class GameHub : Hub
   {
     public static readonly string HubUrl = "/gamehub";
     private readonly IGameService _gameService;
@@ -17,62 +17,26 @@ namespace Game.SignalR.Connector
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-      try
-      {
-        _gameService.RemovePlayer(GetClientIp());
-        await base.OnDisconnectedAsync(exception);
-      }
-      catch (Exception ex)
-      {
-        // Log the exception
-        Console.WriteLine($"Error in OnDisconnectedAsync: {ex.Message}");
-        throw;
-      }
+      await base.OnDisconnectedAsync(exception);
+
+      _gameService.RemovePlayer(GetClientIp());
+      await _gameService.SendPlayerList();
     }
 
     public override async Task OnConnectedAsync()
     {
-      try
-      {
-        _gameService.AddPlayer(GetClientIp());
-        await base.OnConnectedAsync();
-      }
-      catch (Exception ex)
-      {
-        // Log the exception
-        Console.WriteLine($"Error in OnConnectedAsync: {ex.Message}");
-        throw;
-      }
+      await base.OnConnectedAsync();
+
+      _gameService.AddPlayer(GetClientIp());
+      await _gameService.SendPlayerList();
     }
 
     #region Commands
 
-    public void SendMessage(string message)
+    public async Task SendMessage(string message)
     {
-      try
-      {
-        _gameService.SendMessage(GetClientIp(), message);
-      }
-      catch (Exception ex)
-      {
-        // Log the exception
-        Console.WriteLine($"Error in SendMessage: {ex.Message}");
-        throw;
-      }
-    }
-
-    public void ReceiveMessage(string message)
-    {
-      try
-      {
-        Clients.All.SendAsync("ReceiveMessage", message);
-      }
-      catch (Exception ex)
-      {
-        // Log the exception
-        Console.WriteLine($"Error in ReceiveMessage: {ex.Message}");
-        throw;
-      }
+      _gameService.SendMessage(GetClientIp(), message);
+      await _gameService.SendChatHistory();
     }
 
     #endregion

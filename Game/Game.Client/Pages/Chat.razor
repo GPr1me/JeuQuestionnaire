@@ -1,10 +1,10 @@
 ﻿@using Game.App.Services.Interfaces
 @using Game.SignalR.Connector
 @using Microsoft.AspNetCore.SignalR.Client
+@using Newtonsoft.Json
 
 @inject NavigationManager Navigation
 @implements IAsyncDisposable
-@inject IGameService GameService
 
 @rendermode InteractiveWebAssembly
 
@@ -12,10 +12,10 @@
 
 <h3>Chat</h3>
 
-<div>
+@* <div>
   <h4>Connected Users</h4>
   <ul>
-    @foreach (var player in GameService.Players)
+    @foreach (var player in players)
     {
       <li>@player</li>
     }
@@ -30,6 +30,16 @@
       <li>@message</li>
     }
   </ul>
+</div> *@
+
+<div>
+  <h4>Connected Users</h4>
+  <p>@players</p>
+</div>
+
+<div>
+  <h4>Chat History</h4>
+  <p>@chatHistory</p>
 </div>
 
 <input @bind="message" placeholder="Type a message" />
@@ -37,27 +47,37 @@
 
 @code {
   private HubConnection? hubConnection;
-  private List<string> chatHistory = new List<string>();
+  // private List<string> chatHistory = [];
+  // private List<string> players = [];
+  private string chatHistory = "";
+  private string players = "";
   private string message = string.Empty;
 
   protected override async Task OnInitializedAsync()
   {
     string url = "http://host.docker.internal:8080" + GameHub.HubUrl;
-    hubConnection = new HubConnectionBuilder().WithUrl(url, options =>
-    {
-      options.HttpMessageHandlerFactory = _ => new HttpClientHandler
-        {
-          ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-        };
-    }).Build();
+    // hubConnection = new HubConnectionBuilder().WithUrl(url, options =>
+    // {
+    //   options.HttpMessageHandlerFactory = _ => new HttpClientHandler
+    //     {
+    //       ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+    //     };
+    // }).Build();
+    hubConnection = new HubConnectionBuilder().WithUrl(url).Build();
 
-    hubConnection.On<string>("SendMessage", (message) =>
+    hubConnection.On<string>("PlayerListUpdated", (message) =>
     {
-      StateHasChanged();
+      players = message;
+      InvokeAsync(StateHasChanged);
+    });
+
+    hubConnection.On<string>("ChatHistoryUpdated", (message) =>
+    {
+      chatHistory = message;
+      InvokeAsync(StateHasChanged);
     });
 
     await hubConnection.StartAsync();
-    chatHistory = GameService.GetChatHistory();
   }
 
   private async Task SendMessage()
@@ -67,6 +87,11 @@
       await hubConnection.SendAsync("SendMessage", message);
       message = string.Empty;
     }
+  }
+
+  private T Deserialize<T>(string arg)
+  {
+    return (T) JsonConvert.DeserializeObject(arg, typeof(T))!;
   }
 
   public async ValueTask DisposeAsync()

@@ -1,7 +1,10 @@
 using Game.App.Services;
 using Game.App.Services.Interfaces;
 using Game.Components;
+using Game.Services;
 using Game.SignalR.Connector;
+using Game.SignalR.Connector.Services;
+using Game.SignalR.Connector.Services.Interfaces;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.OpenApi.Models;
 
@@ -10,6 +13,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents().AddInteractiveWebAssemblyComponents();
 builder.Services.AddSingleton<IGameService, GameService>();
+builder.Services.AddSingleton<IGameHubService, GameHubService>();
+builder.Services.AddSingleton<IGameLinkService, GameLinkService>();
 
 builder.Services.AddSignalR();
 

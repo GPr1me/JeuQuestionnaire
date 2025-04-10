@@ -7,8 +7,9 @@ namespace Game.App.Services.Interfaces
     List<string> Players { get; }
 
     void AddPlayer(IPAddress? playerIp);
-    List<string> GetChatHistory();
     void RemovePlayer(IPAddress? playerIp);
+    Task SendChatHistory();
     void SendMessage(IPAddress? playerIp, string message);
+    Task SendPlayerList();
   }
 }

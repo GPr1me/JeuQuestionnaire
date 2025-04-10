@@ -1,4 +1,5 @@
 ﻿using Game.App.Services.Interfaces;
+using Game.SignalR.Connector.Services.Interfaces;
 using System.Collections.Concurrent;
 using System.Net;
 
@@ -6,8 +7,15 @@ namespace Game.App.Services
 {
   public class GameService : IGameService
   {
+    private readonly IGameLinkService _gameLinkService;
+
     public List<string> Players { get; private set; } = [];
     private readonly ConcurrentDictionary<string, List<string>> _chatHistory = new();
+
+    public GameService(IGameLinkService gameLinkService)
+    {
+      _gameLinkService = gameLinkService;
+    }
 
     public void AddPlayer(IPAddress? playerIp)
     {
@@ -35,10 +43,9 @@ namespace Game.App.Services
       }
     }
 
-    public List<string> GetChatHistory()
-    {
-      return [.. _chatHistory.Values.SelectMany(x => x)];
-    }
+    public async Task SendPlayerList() => await _gameLinkService.SendPlayerList(Players.AsReadOnly());
+
+    public async Task SendChatHistory() => await _gameLinkService.SendChatHistory([.. _chatHistory.Values.SelectMany(x => x)]);
 
     private static string ValidateAndToString(IPAddress? playerIp)
     {
