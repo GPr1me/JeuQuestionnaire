@@ -4,6 +4,7 @@
 @using Newtonsoft.Json
 
 @inject NavigationManager Navigation
+@inject IConfiguration Configuration
 @implements IAsyncDisposable
 
 @rendermode InteractiveWebAssembly
@@ -42,28 +43,24 @@
   <p>@chatHistory</p>
 </div>
 
+
 <input @bind="message" placeholder="Type a message" />
 <button @onclick="SendMessage">Send</button>
 
 @code {
   private HubConnection? hubConnection;
-  // private List<string> chatHistory = [];
-  // private List<string> players = [];
-  private string chatHistory = "";
-  private string players = "";
+  private string chatHistory = "init";
+  private string players = "inot";
   private string message = string.Empty;
 
   protected override async Task OnInitializedAsync()
   {
-    string url = "http://host.docker.internal:8080" + GameHub.HubUrl;
-    // hubConnection = new HubConnectionBuilder().WithUrl(url, options =>
-    // {
-    //   options.HttpMessageHandlerFactory = _ => new HttpClientHandler
-    //     {
-    //       ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-    //     };
-    // }).Build();
-    hubConnection = new HubConnectionBuilder().WithUrl(url).Build();
+    string url = "http://192.168.40.52" + GameHub.HubUrl;
+    //string url = Configuration["ServerUrl"] + GameHub.HubUrl;
+
+    hubConnection = new HubConnectionBuilder()
+      .WithUrl(url)
+      .Build();
 
     hubConnection.On<string>("PlayerListUpdated", (message) =>
     {

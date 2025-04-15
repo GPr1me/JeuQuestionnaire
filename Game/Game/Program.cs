@@ -70,6 +70,9 @@ app.MapRazorComponents<App>()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(Game.Client._Imports).Assembly);
 
+
+app.UseWebSockets();
+
 app.MapHub<GameHub>(GameHub.HubUrl);
 
 app.Run();

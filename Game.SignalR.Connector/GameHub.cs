@@ -35,6 +35,7 @@ namespace Game.SignalR.Connector
 
     public async Task SendMessage(string message)
     {
+      await Clients.All.SendAsync("ReceiveMessage", message);
       _gameService.SendMessage(GetClientIp(), message);
       await _gameService.SendChatHistory();
     }
