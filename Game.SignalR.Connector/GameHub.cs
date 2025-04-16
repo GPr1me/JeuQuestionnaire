@@ -1,7 +1,5 @@
 ﻿using Game.App.Services.Interfaces;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SignalR;
-using System.Net;
 
 namespace Game.SignalR.Connector
 {
@@ -19,7 +17,7 @@ namespace Game.SignalR.Connector
     {
       await base.OnDisconnectedAsync(exception);
 
-      _gameService.RemovePlayer(GetClientIp());
+      _gameService.RemovePlayer(Context.ConnectionId);
       await _gameService.SendPlayerList();
     }
 
@@ -27,26 +25,26 @@ namespace Game.SignalR.Connector
     {
       await base.OnConnectedAsync();
 
-      _gameService.AddPlayer(GetClientIp());
+      _gameService.AddPlayer(Context.ConnectionId);
       await _gameService.SendPlayerList();
+      await Clients.Caller.SendAsync("YourName", _gameService.Players[Context.ConnectionId]);
     }
 
-    #region Commands
+    #region Commands  
 
     public async Task SendMessage(string message)
     {
       await Clients.All.SendAsync("ReceiveMessage", message);
-      _gameService.SendMessage(GetClientIp(), message);
+      _gameService.SendMessage(Context.ConnectionId, message);
       await _gameService.SendChatHistory();
     }
 
-    #endregion
-
-    #region Private functions
-
-    private IPAddress? GetClientIp()
+    public Task ChangeName(string name)
     {
-      return Context.Features.Get<IHttpConnectionFeature>()?.RemoteIpAddress?.MapToIPv4();
+      string oldName = _gameService.Players[Context.ConnectionId].Name;
+      _gameService.RenamePlayerById(Context.ConnectionId, name);
+      string newName = _gameService.Players[Context.ConnectionId].Name;
+      return Clients.Caller.SendAsync("PlayerNameChanged", oldName, newName);
     }
 
     #endregion

@@ -6,3 +6,23 @@ services:
       dockerfile: Game/Game/Dockerfile
     ports:
       - 8080:8080
+    depends_on:
+      - game.db
+    environment:
+      AuthContextOptions:AssemblyName: ${AssemblyName}
+      AuthContextOptions:Host: ${Host}
+      AuthContextOptions:Database: ${Database}
+      AuthContextOptions:Username: ${Username}
+      AuthContextOptions:Password: ${Password}
+    env_file:
+      - .env
+      
+  game.db:
+    image: postgres:latest
+    container_name: game.db
+    environment:
+      POSTGRES_USER: ${Username}
+      POSTGRES_PASSWORD: ${Password}
+      POSTGRES_DB: ${Database}
+    env_file:
+      - .env

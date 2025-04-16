@@ -1,0 +1,135 @@
+﻿@using Game.App.Services
+@using Game.Core.Models
+@inject QuestionExecutor QuestionExecutor
+
+@page "/questions"
+<h3>Manage Questions</h3>
+
+@if (_questions == null)
+{
+  <p>Loading...</p>
+}
+else
+{
+  <ul>
+    @foreach (var question in _questions)
+    {
+      <li>
+        @question.Text
+        <button @onclick="() => EditQuestion(question)">Edit</button>
+        <button @onclick="() => DeleteQuestion(question.Id)">Delete</button>
+      </li>
+    }
+  </ul>
+
+  <button @onclick="AddNewQuestion" class="btn btn-success">Add New Question</button>
+}
+
+@if (_selectedQuestion != null)
+{
+  <h4>@(_selectedQuestion.Id == Guid.Empty ? "Add New Question" : "Edit Question")</h4>
+  <EditForm Model="_selectedQuestion" OnValidSubmit="SaveQuestion">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+      <label for="text">Question Text:</label>
+      <input id="text" @bind="_selectedQuestion.Text" class="form-control" />
+    </div>
+
+    <div>
+      <label for="options">Options:</label>
+      <textarea id="options" @bind="OptionsAsString" class="form-control"></textarea>
+      <small>Enter options separated by commas.</small>
+    </div>
+
+    <div>
+      <label for="correctAnswer">Correct Answer:</label>
+      <input id="correctAnswer" @bind="_selectedQuestion.CorrectAnswer.Text" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <button type="button" @onclick="CancelEdit" class="btn btn-secondary">Cancel</button>
+  </EditForm>
+}
+
+@code {
+  private List<Question> _questions = new();
+  private Question? _selectedQuestion;
+
+  protected override async Task OnInitializedAsync()
+  {
+    await LoadQuestions();
+  }
+
+  private async Task LoadQuestions()
+  {
+    _questions = await QuestionExecutor.GetAll();
+    _selectedQuestion = null;
+  }
+
+  private void AddNewQuestion()
+  {
+    _selectedQuestion = new Question
+      {
+        Id = Guid.Empty,
+        Text = string.Empty,
+        Options = new List<Answer>(),
+        CorrectAnswer = new Answer { Id = Guid.NewGuid(), Text = string.Empty }
+      };
+  }
+
+  private void EditQuestion(Question question)
+  {
+    // Clone the question to avoid modifying the list directly
+    _selectedQuestion = new Question
+      {
+        Id = question.Id,
+        Text = question.Text,
+        Options = question.Options.Select(o => new Answer { Id = o.Id, Text = o.Text }).ToList(),
+        CorrectAnswer = new Answer { Id = question.CorrectAnswer.Id, Text = question.CorrectAnswer.Text }
+      };
+  }
+
+  private async Task SaveQuestion()
+  {
+    if (_selectedQuestion != null)
+    {
+      if (_selectedQuestion.Id == Guid.Empty)
+      {
+        await QuestionExecutor.Create(_selectedQuestion);
+      }
+      else
+      {
+        await QuestionExecutor.Update(_selectedQuestion);
+      }
+
+      await LoadQuestions();
+    }
+  }
+
+  private async Task DeleteQuestion(Guid id)
+  {
+    await QuestionExecutor.Delete(id);
+    await LoadQuestions();
+  }
+
+  private void CancelEdit()
+  {
+    _selectedQuestion = null;
+  }
+
+  private string OptionsAsString
+  {
+    get => string.Join(", ", _selectedQuestion?.Options.Select(o => o.Text) ?? Array.Empty<string>());
+    set
+    {
+      if (_selectedQuestion != null)
+      {
+        _selectedQuestion.Options = value.Split(',')
+            .Select(text => new Answer { Id = Guid.NewGuid(), Text = text.Trim() })
+            .ToList();
+      }
+    }
+  }
+}

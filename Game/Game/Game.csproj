@@ -13,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Game.App\Game.App.csproj" />
     <ProjectReference Include="..\..\Game.Core\Game.Core.csproj" />
+    <ProjectReference Include="..\..\Game.Dal\Game.Dal.csproj" />
     <ProjectReference Include="..\..\Game.SignalR.Connector\Game.SignalR.Connector.csproj" />
     <ProjectReference Include="..\Game.Client\Game.Client.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.15" />

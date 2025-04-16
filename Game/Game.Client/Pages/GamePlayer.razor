@@ -1,0 +1,43 @@
+﻿@using Game.App.Services.Interfaces
+@using Game.Core.Models
+@inject IGameService GameService
+
+@page "/play"
+<h3>Jeu</h3>
+
+@if (currentQuestion != null)
+{
+  <p>@currentQuestion.Text</p>
+  <ul>
+    @foreach (var option in currentQuestion.Options)
+    {
+      <li>
+        @option.Text
+      </li>
+    }
+  </ul>
+}
+else
+{
+  <p>Waiting for the next question...</p>
+}
+
+@code {
+  private Question? currentQuestion;
+
+  protected override Task OnInitializedAsync()
+  {
+    LoadCurrentQuestion();
+    return Task.CompletedTask;
+  }
+
+  private void LoadCurrentQuestion()
+  {
+    currentQuestion = GameService.GetCurrentQuestion();
+  }
+
+  private void SubmitAnswer(string answer)
+  {
+    GameService.SubmitAnswer("PlayerId", answer); // Replace "PlayerId" with actual player ID
+  }
+}

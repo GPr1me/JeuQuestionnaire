@@ -1,15 +1,27 @@
-﻿using System.Net;
+﻿using Game.Core.Models;
+using System.Collections.Concurrent;
 
 namespace Game.App.Services.Interfaces
 {
   public interface IGameService
   {
-    List<string> Players { get; }
+    ConcurrentDictionary<string, Player> Players { get; }
 
-    void AddPlayer(IPAddress? playerIp);
-    void RemovePlayer(IPAddress? playerIp);
+    void AddPlayer(string playerId);
+    void RemovePlayer(string playerId);
+    void RenamePlayerById(string playerId, string newName);
+    void RenamePlayerByValue(string oldName, string newName);
     Task SendChatHistory();
-    void SendMessage(IPAddress? playerIp, string message);
+    void SendMessage(string playerId, string message);
     Task SendPlayerList();
+
+
+    void AddQuestion(Question question);
+    Question? GetCurrentQuestion();
+    void StartGame();
+    void NextQuestion();
+    void EndGame();
+    void SubmitAnswer(string playerId, string answer);
+    Task SendGoSignal();
   }
 }

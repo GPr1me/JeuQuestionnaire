@@ -1,0 +1,64 @@
+﻿@using Game.App.Services.Interfaces
+@using Game.Core.Models
+@inject IGameService GameService
+
+@page "/control"
+
+<h3>Game Master</h3>
+
+<button @onclick="StartGame">Start Game</button>
+<button @onclick="NextQuestion">Next Question</button>
+<button @onclick="EndGame">End Game</button>
+
+<h4>Current Question</h4>
+@if (currentQuestion != null)
+{
+  <p>@currentQuestion.Text</p>
+  <ul>
+    @foreach (var option in currentQuestion.Options)
+    {
+      <li>@option</li>
+    }
+  </ul>
+}
+else
+{
+  <p>No question available.</p>
+}
+
+<h4>Player Answers</h4>
+<ul>
+  @foreach (var player in GameService.Players)
+  {
+    <li>@player.Value.Name: @player.Value.LastMessage</li>
+  }
+</ul>
+
+@code {
+  private Question? currentQuestion;
+  private Dictionary<string, string> playerAnswers = new();
+
+  private async Task StartGame()
+  {
+    GameService.StartGame();
+    await LoadCurrentQuestion();
+  }
+
+  private async Task NextQuestion()
+  {
+    GameService.NextQuestion();
+    await LoadCurrentQuestion();
+  }
+
+  private void EndGame()
+  {
+    GameService.EndGame();
+    currentQuestion = null;
+    playerAnswers.Clear();
+  }
+
+  private async Task LoadCurrentQuestion()
+  {
+    currentQuestion = GameService.GetCurrentQuestion();
+  }
+}

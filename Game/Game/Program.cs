@@ -1,20 +1,50 @@
+using Game.App.Repos;
 using Game.App.Services;
 using Game.App.Services.Interfaces;
+using Game.App.Validators;
 using Game.Components;
+using Game.Dal;
+using Game.Dal.Models;
+using Game.Dal.Repos;
 using Game.Services;
 using Game.SignalR.Connector;
 using Game.SignalR.Connector.Services;
-using Game.SignalR.Connector.Services.Interfaces;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ------------------------------------------------------------------------------------------------------------
 // Add services to the container.
+
 builder.Services.AddRazorComponents().AddInteractiveWebAssemblyComponents();
-builder.Services.AddSingleton<IGameService, GameService>();
+
+// DB
+builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
+
+// Services
 builder.Services.AddSingleton<IGameHubService, GameHubService>();
 builder.Services.AddSingleton<IGameLinkService, GameLinkService>();
+builder.Services.AddSingleton<IGameService, GameService>();
+
+// Executors
+builder.Services.AddScoped<IQuestionExecutor, QuestionExecutor>();
+
+// Validators
+builder.Services.AddSingleton<IQuestionValidator, QuestionValidator>();
+
+// ------------------------------------------------------------------------------------------------------------
+// Database
+
+builder.Services.AddDbContext<GameContext>(options =>
+{
+  var authContextOptions = builder.Configuration.GetRequiredSection("AuthContextOptions").Get<GameContextOptions>()!;
+
+  options.UseNpgsql(authContextOptions.ConnectionString, builder => builder.MigrationsAssembly(authContextOptions.AssemblyName));
+  options.EnableSensitiveDataLogging();
+  options.EnableDetailedErrors();
+});
 
 builder.Services.AddSignalR();
 
