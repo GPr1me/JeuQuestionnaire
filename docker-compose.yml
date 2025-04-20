@@ -1,6 +1,7 @@
 services:
   game:
     image: ${DOCKER_REGISTRY-}game
+    container_name: game
     build:
       context: .
       dockerfile: Game/Game/Dockerfile
@@ -9,11 +10,12 @@ services:
     depends_on:
       - game.db
     environment:
-      AuthContextOptions:AssemblyName: ${AssemblyName}
-      AuthContextOptions:Host: ${Host}
-      AuthContextOptions:Database: ${Database}
-      AuthContextOptions:Username: ${Username}
-      AuthContextOptions:Password: ${Password}
+      GameContextOptions:AssemblyName: ${AssemblyName}
+      GameContextOptions:Host: ${Host}
+      GameContextOptions:Database: ${Database}
+      GameContextOptions:Username: ${Username}
+      GameContextOptions:Password: ${Password}
+      ServerUrl: "http://localhost/"
     env_file:
       - .env
       

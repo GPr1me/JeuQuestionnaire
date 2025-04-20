@@ -16,14 +16,12 @@ namespace Game.Dal.Repos
     public async Task<Question> Get(Guid id)
     {
       return await _context.Questions.Include(q => q.Options)
-                                     .Include(q => q.CorrectAnswer)
                                      .FirstAsync(q => q.Id == id);
     }
 
     public async Task<List<Question>> GetAll()
     {
       return await _context.Questions.Include(q => q.Options)
-                                     .Include(q => q.CorrectAnswer)
                                      .ToListAsync();
     }
 
@@ -38,7 +36,6 @@ namespace Game.Dal.Repos
       var localEntity = _context.GetLocalOrAttach(_context.Questions, q => q.Id == question.Id, () => question);
       localEntity.Text = question.Text;
       localEntity.Options = question.Options;
-      localEntity.CorrectAnswer = question.CorrectAnswer;
       await _context.SaveChangesAsync();
     }
 

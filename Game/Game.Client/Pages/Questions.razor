@@ -1,6 +1,6 @@
-﻿@using Game.App.Services
+﻿@using Game.Client.Services
 @using Game.Core.Models
-@inject QuestionExecutor QuestionExecutor
+@inject IQuestionService QuestionService
 
 @page "/questions"
 <h3>Manage Questions</h3>
@@ -23,6 +23,7 @@ else
   </ul>
 
   <button @onclick="AddNewQuestion" class="btn btn-success">Add New Question</button>
+  <button @onclick="AddNewQuestion" class="btn btn-success">Test</button>
 }
 
 @if (_selectedQuestion != null)
@@ -61,11 +62,16 @@ else
   {
     await LoadQuestions();
   }
+  private void test()
+  {
+    // This method is just for testing purposes
+    Console.WriteLine("Test method called");
+  }
 
   private async Task LoadQuestions()
   {
-    _questions = await QuestionExecutor.GetAll();
-    _selectedQuestion = null;
+    _questions = await QuestionService.GetAll();
+    _selectedQuestion = _questions.FirstOrDefault();
   }
 
   private void AddNewQuestion()
@@ -74,9 +80,10 @@ else
       {
         Id = Guid.Empty,
         Text = string.Empty,
-        Options = new List<Answer>(),
-        CorrectAnswer = new Answer { Id = Guid.NewGuid(), Text = string.Empty }
+        Options = new List<Answer>()
       };
+
+    StateHasChanged();
   }
 
   private void EditQuestion(Question question)
@@ -86,8 +93,7 @@ else
       {
         Id = question.Id,
         Text = question.Text,
-        Options = question.Options.Select(o => new Answer { Id = o.Id, Text = o.Text }).ToList(),
-        CorrectAnswer = new Answer { Id = question.CorrectAnswer.Id, Text = question.CorrectAnswer.Text }
+        Options = question.Options
       };
   }
 
@@ -97,11 +103,11 @@ else
     {
       if (_selectedQuestion.Id == Guid.Empty)
       {
-        await QuestionExecutor.Create(_selectedQuestion);
+        await QuestionService.Create(_selectedQuestion);
       }
       else
       {
-        await QuestionExecutor.Update(_selectedQuestion);
+        await QuestionService.Update(_selectedQuestion);
       }
 
       await LoadQuestions();
@@ -110,8 +116,9 @@ else
 
   private async Task DeleteQuestion(Guid id)
   {
-    await QuestionExecutor.Delete(id);
+    await QuestionService.Delete(id);
     await LoadQuestions();
+    StateHasChanged();
   }
 
   private void CancelEdit()
@@ -127,7 +134,7 @@ else
       if (_selectedQuestion != null)
       {
         _selectedQuestion.Options = value.Split(',')
-            .Select(text => new Answer { Id = Guid.NewGuid(), Text = text.Trim() })
+            .Select(text => new Answer { Id = Guid.NewGuid(), Text = text.Trim(), IsCorrect = false })
             .ToList();
       }
     }

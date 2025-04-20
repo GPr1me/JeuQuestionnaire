@@ -8,13 +8,7 @@ namespace Game.Dal.Mappings
   {
     public void Configure(EntityTypeBuilder<Question> builder)
     {
-      builder.ToTable("Questions", t =>
-      {
-        t.HasCheckConstraint(
-          "CK_CorrectAnswerInOptions",
-          "CorrectAnswerId IN (SELECT Id FROM Answers WHERE QuestionId = Questions.Id)"
-        );
-      });
+      builder.ToTable("Questions");
 
       builder.HasKey(x => x.Id);
 
@@ -22,11 +16,6 @@ namespace Game.Dal.Mappings
       builder.Property(x => x.Text)
         .IsRequired()
         .HasMaxLength(1000);
-
-      builder.HasOne(x => x.CorrectAnswer)
-        .WithMany()
-        .HasForeignKey("CorrectAnswerId")
-        .OnDelete(DeleteBehavior.Restrict);
 
       builder.HasMany(x => x.Options)
         .WithOne()

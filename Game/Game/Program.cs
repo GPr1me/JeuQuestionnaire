@@ -2,6 +2,7 @@ using Game.App.Repos;
 using Game.App.Services;
 using Game.App.Services.Interfaces;
 using Game.App.Validators;
+using Game.Client.Services;
 using Game.Components;
 using Game.Dal;
 using Game.Dal.Models;
@@ -18,7 +19,8 @@ var builder = WebApplication.CreateBuilder(args);
 // ------------------------------------------------------------------------------------------------------------
 // Add services to the container.
 
-builder.Services.AddRazorComponents().AddInteractiveWebAssemblyComponents();
+builder.Services.AddRazorComponents()
+                .AddInteractiveWebAssemblyComponents();
 
 // DB
 builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
@@ -27,6 +29,7 @@ builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
 builder.Services.AddSingleton<IGameHubService, GameHubService>();
 builder.Services.AddSingleton<IGameLinkService, GameLinkService>();
 builder.Services.AddSingleton<IGameService, GameService>();
+builder.Services.AddSingleton<IQuestionService, QuestionService>();
 
 // Executors
 builder.Services.AddScoped<IQuestionExecutor, QuestionExecutor>();
@@ -34,14 +37,16 @@ builder.Services.AddScoped<IQuestionExecutor, QuestionExecutor>();
 // Validators
 builder.Services.AddSingleton<IQuestionValidator, QuestionValidator>();
 
+builder.Services.AddHttpClient();
+
 // ------------------------------------------------------------------------------------------------------------
 // Database
 
 builder.Services.AddDbContext<GameContext>(options =>
 {
-  var authContextOptions = builder.Configuration.GetRequiredSection("AuthContextOptions").Get<GameContextOptions>()!;
+  var gameContextOptions = builder.Configuration.GetRequiredSection("GameContextOptions").Get<GameContextOptions>()!;
 
-  options.UseNpgsql(authContextOptions.ConnectionString, builder => builder.MigrationsAssembly(authContextOptions.AssemblyName));
+  options.UseNpgsql(gameContextOptions.ConnectionString, builder => builder.MigrationsAssembly(gameContextOptions.AssemblyName));
   options.EnableSensitiveDataLogging();
   options.EnableDetailedErrors();
 });
@@ -73,6 +78,13 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
+
+// run migration
+using (var scope = app.Services.CreateScope())
+{
+  var db = scope.ServiceProvider.GetRequiredService<GameContext>();
+  db.Database.Migrate();
+}
 
 app.UseResponseCompression();
 

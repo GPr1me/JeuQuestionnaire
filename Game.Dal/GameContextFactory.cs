@@ -10,7 +10,7 @@ namespace Game.Dal
     GameContext IDesignTimeDbContextFactory<GameContext>.CreateDbContext(string[] args)
     {
       IConfigurationRoot configuration = new ConfigurationBuilder().SetBasePath(Directory.GetParent(Directory.GetCurrentDirectory())!.FullName)
-                                                                   .AddJsonFile("Auth.API/appsettings.Development.json")
+                                                                   .AddJsonFile("Game/Game/appsettings.Development.json")
                                                                    .Build();
 
       var gameContextOptions = configuration.GetRequiredSection("GameContextOptions").Get<GameContextOptions>()!;
