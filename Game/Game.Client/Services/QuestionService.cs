@@ -10,7 +10,7 @@ namespace Game.Client.Services
     public QuestionService(HttpClient httpClient)
     {
       _httpClient = httpClient;
-      _httpClient.BaseAddress = new Uri(Environment.GetEnvironmentVariable("ServerUrl")!);
+      //_httpClient.BaseAddress = new Uri(Environment.GetEnvironmentVariable("ServerUrl")!);
     }
 
     public async Task<List<Question>> GetAll()

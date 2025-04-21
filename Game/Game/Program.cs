@@ -29,15 +29,13 @@ builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
 builder.Services.AddSingleton<IGameHubService, GameHubService>();
 builder.Services.AddSingleton<IGameLinkService, GameLinkService>();
 builder.Services.AddSingleton<IGameService, GameService>();
-builder.Services.AddSingleton<IQuestionService, QuestionService>();
+builder.Services.AddScoped<IQuestionService, Game.Services.QuestionService>();
 
 // Executors
 builder.Services.AddScoped<IQuestionExecutor, QuestionExecutor>();
 
 // Validators
 builder.Services.AddSingleton<IQuestionValidator, QuestionValidator>();
-
-builder.Services.AddHttpClient();
 
 // ------------------------------------------------------------------------------------------------------------
 // Database
@@ -116,5 +114,7 @@ app.MapRazorComponents<App>()
 app.UseWebSockets();
 
 app.MapHub<GameHub>(GameHub.HubUrl);
+
+app.MapControllers();
 
 app.Run();

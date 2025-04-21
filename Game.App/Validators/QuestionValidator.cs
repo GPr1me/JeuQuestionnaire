@@ -14,7 +14,7 @@ namespace Game.App.Validators
         throw new ArgumentException("Question must have 4 options.", nameof(question.Options));
       if (question.CorrectAnswer == null)
         throw new ArgumentException("Correct answer cannot be null.", nameof(question.CorrectAnswer));
-      if (question.Options.Select(o => o.IsCorrect).ToList().Count > 1)
+      if (question.Options.FindAll(o => o.IsCorrect).Count > 1)
         throw new ArgumentException("Only one correct answer per question.", nameof(question.CorrectAnswer));
     }
   }

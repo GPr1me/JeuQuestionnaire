@@ -15,7 +15,7 @@ services:
       GameContextOptions:Database: ${Database}
       GameContextOptions:Username: ${Username}
       GameContextOptions:Password: ${Password}
-      ServerUrl: "http://localhost/"
+      ServerUrl: "http://localhost:8080/"
     env_file:
       - .env
       

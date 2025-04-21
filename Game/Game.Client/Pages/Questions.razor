@@ -2,6 +2,8 @@
 @using Game.Core.Models
 @inject IQuestionService QuestionService
 
+@rendermode InteractiveWebAssembly
+
 @page "/questions"
 <h3>Manage Questions</h3>
 
@@ -23,7 +25,6 @@ else
   </ul>
 
   <button @onclick="AddNewQuestion" class="btn btn-success">Add New Question</button>
-  <button @onclick="AddNewQuestion" class="btn btn-success">Test</button>
 }
 
 @if (_selectedQuestion != null)
@@ -39,14 +40,16 @@ else
     </div>
 
     <div>
-      <label for="options">Options:</label>
-      <textarea id="options" @bind="OptionsAsString" class="form-control"></textarea>
-      <small>Enter options separated by commas.</small>
-    </div>
-
-    <div>
-      <label for="correctAnswer">Correct Answer:</label>
-      <input id="correctAnswer" @bind="_selectedQuestion.CorrectAnswer.Text" class="form-control" />
+      <label>Options:</label>
+      @for (int i = 0; i < _selectedQuestion.Options.Count; i++)
+      {
+        <div>
+          <input type="radio" id="correctOption-@i" name="correctOption"
+                 checked="@_selectedQuestion.Options[i].IsCorrect"
+                 @onchange="() => SetCorrectOption(i)" />
+          <input type="text" id="correctOption-@i" @bind="_selectedQuestion.Options[i].Text" class="form-control" />
+        </div>
+      }
     </div>
 
     <button type="submit" class="btn btn-primary">Save</button>
@@ -62,10 +65,15 @@ else
   {
     await LoadQuestions();
   }
-  private void test()
+
+  private void SetCorrectOption(int index)
   {
-    // This method is just for testing purposes
-    Console.WriteLine("Test method called");
+    if (_selectedQuestion == null) return;
+
+    for (int i = 0; i < _selectedQuestion.Options.Count; i++)
+    {
+      _selectedQuestion.Options[i].IsCorrect = (i == index);
+    }
   }
 
   private async Task LoadQuestions()
@@ -80,7 +88,13 @@ else
       {
         Id = Guid.Empty,
         Text = string.Empty,
-        Options = new List<Answer>()
+        Options =
+          [
+            new Answer { Id = Guid.NewGuid(), Text = "Option 1", IsCorrect = true },
+          new Answer { Id = Guid.NewGuid(), Text = "Option 2", IsCorrect = false },
+          new Answer { Id = Guid.NewGuid(), Text = "Option 3", IsCorrect = false },
+          new Answer { Id = Guid.NewGuid(), Text = "Option 4", IsCorrect = false }
+          ]
       };
 
     StateHasChanged();
