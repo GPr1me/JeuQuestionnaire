@@ -1,6 +1,6 @@
 ﻿using Game.Core.Models;
 
-namespace Game.Client.Services
+namespace Game.Client.Services.Interfaces
 {
   public interface IQuestionService
   {

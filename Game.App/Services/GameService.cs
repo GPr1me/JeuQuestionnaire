@@ -63,20 +63,22 @@ namespace Game.App.Services
             ? _questions[_currentQuestionIndex]
             : null;
 
-    public void StartGame()
+    public void StartGame(List<Question> questions)
     {
       _currentQuestionIndex = 0;
       foreach (var player in Players)
       {
         player.Value.ClearLastMessage();
       }
+
+      _questions.AddRange(questions);
     }
 
     public void NextQuestion()
     {
+      _currentQuestionIndex++;
       if (_currentQuestionIndex < _questions.Count - 1)
       {
-        _currentQuestionIndex++;
         foreach (var player in Players)
         {
           player.Value.ClearLastMessage();
@@ -84,7 +86,11 @@ namespace Game.App.Services
       }
     }
 
-    public void EndGame() => _currentQuestionIndex = -1;
+    public void EndGame()
+    {
+      _currentQuestionIndex = -1;
+      _questions.Clear();
+    }
 
     public void SubmitAnswer(string playerId, string answer)
     {

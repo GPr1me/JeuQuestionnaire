@@ -1,3 +1,4 @@
+using Game.App.Services.Interfaces;
 using Game.Core.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -5,9 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 [Route("api/questions")]
 public class QuestionsController : ControllerBase
 {
-  private readonly Game.App.Services.Interfaces.IQuestionExecutor _questionExecutor;
+  private readonly IQuestionExecutor _questionExecutor;
 
-  public QuestionsController(Game.App.Services.Interfaces.IQuestionExecutor questionExecutor)
+  public QuestionsController(IQuestionExecutor questionExecutor)
   {
     _questionExecutor = questionExecutor;
   }

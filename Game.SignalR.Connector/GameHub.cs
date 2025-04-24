@@ -5,7 +5,7 @@ namespace Game.SignalR.Connector
 {
   public sealed class GameHub : Hub
   {
-    public static readonly string HubUrl = "/gamehub";
+    public static readonly string HubUrl = "gamehub";
     private readonly IGameService _gameService;
 
     public GameHub(IGameService gameService)

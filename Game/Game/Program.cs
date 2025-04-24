@@ -2,7 +2,7 @@ using Game.App.Repos;
 using Game.App.Services;
 using Game.App.Services.Interfaces;
 using Game.App.Validators;
-using Game.Client.Services;
+using Game.Client.Services.Interfaces;
 using Game.Components;
 using Game.Dal;
 using Game.Dal.Models;
@@ -29,7 +29,8 @@ builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
 builder.Services.AddSingleton<IGameHubService, GameHubService>();
 builder.Services.AddSingleton<IGameLinkService, GameLinkService>();
 builder.Services.AddSingleton<IGameService, GameService>();
-builder.Services.AddScoped<IQuestionService, Game.Services.QuestionService>();
+builder.Services.AddScoped<IGameClientService, GameClientService>();
+builder.Services.AddScoped<IQuestionService, QuestionService>();
 
 // Executors
 builder.Services.AddScoped<IQuestionExecutor, QuestionExecutor>();
@@ -113,7 +114,7 @@ app.MapRazorComponents<App>()
 
 app.UseWebSockets();
 
-app.MapHub<GameHub>(GameHub.HubUrl);
+app.MapHub<GameHub>($"/{GameHub.HubUrl}");
 
 app.MapControllers();
 

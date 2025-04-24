@@ -1,6 +1,12 @@
-﻿@using Game.App.Services.Interfaces
+﻿@using Game.App.Enum
+@using Game.Client.Services.Interfaces
 @using Game.Core.Models
-@inject IGameService GameService
+@using Game.SignalR.Connector
+@using Microsoft.AspNetCore.SignalR.Client
+
+@inject IGameClientService GameService
+@inject NavigationManager Navigation
+@implements IAsyncDisposable
 
 @rendermode InteractiveWebAssembly
 
@@ -8,9 +14,21 @@
 
 <h3>Game Master</h3>
 
-<button @onclick="StartGame">Start Game</button>
+<button @onclick="StartGame" disabled="@(selectedQuestions.Values.All(selected => !selected))">Start Game</button>
 <button @onclick="NextQuestion">Next Question</button>
 <button @onclick="EndGame">End Game</button>
+
+<h4>Questions</h4>
+<input type="checkbox" checked="@selectAll" @onchange="ToggleSelectAll" /> Select All: @selectAll
+<ul>
+  @foreach (var question in questions)
+  {
+    <li>
+      <input type="checkbox" @bind="selectedQuestions[question.Id]" />
+      @question.Text
+    </li>
+  }
+</ul>
 
 <h4>Current Question</h4>
 @if (currentQuestion != null)
@@ -19,48 +37,106 @@
   <ul>
     @foreach (var option in currentQuestion.Options)
     {
-      <li>@option</li>
+      <li>@option.Text</li>
     }
   </ul>
 }
 else
 {
-  <p>No question available.</p>
+  <p>Prepare game.</p>
 }
 
 <h4>Player Answers</h4>
 <ul>
-  @foreach (var player in GameService.Players)
-  {
-    <li>@player.Value.Name: @player.Value.LastMessage</li>
-  }
+  <li>@players</li>
 </ul>
 
 @code {
+  private HubConnection? hubConnection;
+  private string players = "inot";
   private Question? currentQuestion;
-  private Dictionary<string, string> playerAnswers = new();
+  private readonly List<Question> questions = new();
+  private Dictionary<Guid, bool> selectedQuestions = new();
+  private bool selectAll = false;
+  private GameState gameState = GameState.NotStarted;
+
+  protected override async Task OnInitializedAsync()
+  {
+    string url = Navigation.BaseUri + GameHub.HubUrl;
+
+    hubConnection = new HubConnectionBuilder()
+        .WithUrl(url)
+        .Build();
+
+    hubConnection.On<string>("PlayerListUpdated", (message) =>
+    {
+      players = message;
+      InvokeAsync(StateHasChanged);
+    });
+
+    await hubConnection.StartAsync();
+    await LoadAllQuestions();
+  }
 
   private async Task StartGame()
   {
-    GameService.StartGame();
+    var selected = questions.Where(q => selectedQuestions.ContainsKey(q.Id) && selectedQuestions[q.Id]).ToList();
+    await GameService.StartGame(selected);
     await LoadCurrentQuestion();
   }
 
   private async Task NextQuestion()
   {
-    GameService.NextQuestion();
+    await GameService.NextQuestion();
     await LoadCurrentQuestion();
+
+    if (currentQuestion is null) await EndGame();
   }
 
-  private void EndGame()
+  private async Task EndGame()
   {
-    GameService.EndGame();
+    await GameService.EndGame();
     currentQuestion = null;
-    playerAnswers.Clear();
+    gameState = GameState.Finished;
+  }
+
+  private async Task LoadAllQuestions()
+  {
+    var loadedQuestions = await GameService.GetQuestions();
+    questions.AddRange(loadedQuestions);
+    foreach (var question in loadedQuestions)
+    {
+      selectedQuestions[question.Id] = false;
+    }
   }
 
   private async Task LoadCurrentQuestion()
   {
-    currentQuestion = GameService.GetCurrentQuestion();
+    currentQuestion = await GameService.GetCurrentQuestion();
+
+    if (currentQuestion != null)
+    {
+      gameState = GameState.InProgress;
+    }
+    else
+    {
+      gameState = GameState.NotStarted;
+    }
+  }
+
+  private void ToggleSelectAll(ChangeEventArgs e)
+  {
+    foreach (var key in selectedQuestions.Keys.ToList())
+    {
+      selectedQuestions[key] = selectAll;
+    }
+  }
+
+  public async ValueTask DisposeAsync()
+  {
+    if (hubConnection is not null)
+    {
+      await hubConnection.DisposeAsync();
+    }
   }
 }

@@ -4,7 +4,6 @@
 @using Newtonsoft.Json
 
 @inject NavigationManager Navigation
-@inject IConfiguration Configuration
 @implements IAsyncDisposable
 
 @rendermode InteractiveWebAssembly
@@ -55,8 +54,8 @@
 
   protected override async Task OnInitializedAsync()
   {
-    string url = "http://192.168.40.52" + GameHub.HubUrl;
-    //string url = Configuration["ServerUrl"] + GameHub.HubUrl;
+    string url = Navigation.BaseUri + GameHub.HubUrl;
+    // string url = "http://192.168.40.52/" + GameHub.HubUrl;
 
     hubConnection = new HubConnectionBuilder()
       .WithUrl(url)

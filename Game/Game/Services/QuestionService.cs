@@ -1,5 +1,5 @@
 ﻿using Game.App.Services.Interfaces;
-using Game.Client.Services;
+using Game.Client.Services.Interfaces;
 using Game.Core.Models;
 
 namespace Game.Services

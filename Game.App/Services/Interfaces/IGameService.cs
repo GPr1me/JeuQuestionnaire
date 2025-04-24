@@ -18,7 +18,7 @@ namespace Game.App.Services.Interfaces
 
     void AddQuestion(Question question);
     Question? GetCurrentQuestion();
-    void StartGame();
+    void StartGame(List<Question> questions);
     void NextQuestion();
     void EndGame();
     void SubmitAnswer(string playerId, string answer);
