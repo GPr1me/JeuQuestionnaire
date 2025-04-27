@@ -1,10 +1,11 @@
 ﻿@using Game.App.Services.Interfaces
+@using Game.Core.Models
 @using Game.SignalR.Connector
 @using Microsoft.AspNetCore.SignalR.Client
 @using Newtonsoft.Json
 
-@inject NavigationManager Navigation
-@implements IAsyncDisposable
+
+@inherits SignalRClientComponent
 
 @rendermode InteractiveWebAssembly
 
@@ -12,29 +13,22 @@
 
 <h3>Chat</h3>
 
-@* <div>
+<div>
   <h4>Connected Users</h4>
-  <ul>
     @foreach (var player in players)
     {
-      <li>@player</li>
+      <div style="display: flex; gap: 10px; background-color: lightblue; padding: 5px; margin: 5px;">
+        <div>
+          <strong>@player.Name</strong>
+      </div>
+      <div>
+        <strong>Score:</strong> @player.Score
+      </div>
+      <div>
+        <p>Msg:</p> @player.LastMessage
+      </div>
+      </div>
     }
-  </ul>
-</div>
-
-<div>
-  <h4>Chat History</h4>
-  <ul>
-    @foreach (var message in chatHistory)
-    {
-      <li>@message</li>
-    }
-  </ul>
-</div> *@
-
-<div>
-  <h4>Connected Users</h4>
-  <p>@players</p>
 </div>
 
 <div>
@@ -43,58 +37,29 @@
 </div>
 
 
+
 <input @bind="message" placeholder="Type a message" />
 <button @onclick="SendMessage">Send</button>
 
 @code {
-  private HubConnection? hubConnection;
   private string chatHistory = "init";
-  private string players = "inot";
+  private List<Player> players = [];
   private string message = string.Empty;
 
   protected override async Task OnInitializedAsync()
   {
-    string url = Navigation.BaseUri + GameHub.HubUrl;
-    // string url = "http://192.168.40.52/" + GameHub.HubUrl;
-
-    hubConnection = new HubConnectionBuilder()
-      .WithUrl(url)
-      .Build();
-
-    hubConnection.On<string>("PlayerListUpdated", (message) =>
+    AddOnEventListener<List<Player>>(HubEnpoints.PlayerListUpdated, (message) =>
     {
-      players = message;
-      InvokeAsync(StateHasChanged);
+      players.Clear();
+      players.AddRange(message);
     });
 
-    hubConnection.On<string>("ChatHistoryUpdated", (message) =>
-    {
-      chatHistory = message;
-      InvokeAsync(StateHasChanged);
-    });
-
-    await hubConnection.StartAsync();
+    await InitializeAsync();
   }
 
-  private async Task SendMessage()
+  private void SendMessage()
   {
-    if (hubConnection is not null)
-    {
-      await hubConnection.SendAsync("SendMessage", message);
+      Send("SendMessage", message);
       message = string.Empty;
-    }
-  }
-
-  private T Deserialize<T>(string arg)
-  {
-    return (T) JsonConvert.DeserializeObject(arg, typeof(T))!;
-  }
-
-  public async ValueTask DisposeAsync()
-  {
-    if (hubConnection is not null)
-    {
-      await hubConnection.DisposeAsync();
-    }
   }
 }
