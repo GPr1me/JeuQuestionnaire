@@ -3,10 +3,11 @@
 @using Game.Core.Models
 @using Game.SignalR.Connector
 @using Microsoft.AspNetCore.SignalR.Client
+@using Newtonsoft.Json
 
 @inject IGameClientService GameService
-@inject NavigationManager Navigation
-@implements IAsyncDisposable
+
+@inherits SignalRClientComponent
 
 @rendermode InteractiveWebAssembly
 
@@ -17,6 +18,9 @@
 <button @onclick="StartGame" disabled="@(selectedQuestions.Values.All(selected => !selected))">Start Game</button>
 <button @onclick="NextQuestion">Next Question</button>
 <button @onclick="EndGame">End Game</button>
+<button @onclick="ResetGame">Reset Game</button>
+<button @onclick="ToggleShowCurrentQuestion">Show Current Question</button>
+<button @onclick="ToggleShowScores">Show Scores</button>
 
 <h4>Questions</h4>
 <input type="checkbox" checked="@selectAll" @onchange="ToggleSelectAll" /> Select All: @selectAll
@@ -48,33 +52,43 @@ else
 
 <h4>Player Answers</h4>
 <ul>
-  <li>@players</li>
+  @if (players.Count == 0)
+  {
+    <li>No players connected.</li>
+  }
+  else
+  {
+    foreach (var player in players)
+    {
+      <li>@player.Name: @player.LastMessage</li>
+    }
+  }
 </ul>
 
 @code {
   private HubConnection? hubConnection;
-  private string players = "inot";
+  private List<Player> players = [];
   private Question? currentQuestion;
   private readonly List<Question> questions = new();
   private Dictionary<Guid, bool> selectedQuestions = new();
   private bool selectAll = false;
   private GameState gameState = GameState.NotStarted;
+  private GamePlayerState gamePlayerState = new();
+
+  private static readonly string[] possibleAnswers = { "A", "B", "C", "D" };
 
   protected override async Task OnInitializedAsync()
   {
-    string url = Navigation.BaseUri + GameHub.HubUrl;
-
-    hubConnection = new HubConnectionBuilder()
-        .WithUrl(url)
-        .Build();
-
-    hubConnection.On<string>("PlayerListUpdated", (message) =>
+    AddOnEventListener<List<Player>>(HubEnpoints.PlayerListUpdated, (message) =>
     {
-      players = message;
-      InvokeAsync(StateHasChanged);
+      players.Clear();
+      players.AddRange(message);
     });
 
-    await hubConnection.StartAsync();
+    AddOnEventListener<GameState>(HubEnpoints.StateUpdated, (message) => gameState = message);
+
+    await InitializeAsync();
+
     await LoadAllQuestions();
   }
 
@@ -97,7 +111,25 @@ else
   {
     await GameService.EndGame();
     currentQuestion = null;
-    gameState = GameState.Finished;
+  }
+
+  private async Task ResetGame()
+  {
+    await GameService.ResetGame();
+  }
+
+  private async Task ToggleShowScores()
+  {
+    gamePlayerState.ShowScore = !gamePlayerState.ShowScore;
+    Send(HubEnpoints.GamePlayerUpdated, gamePlayerState);
+    await GameService.ShowGameStats();
+  }
+
+  private void ToggleShowCurrentQuestion()
+  {
+    gamePlayerState.ShowQuestion = !gamePlayerState.ShowQuestion;
+    Send(HubEnpoints.CurrentQuestionUpdated, currentQuestion);
+    Send(HubEnpoints.GamePlayerUpdated, gamePlayerState);
   }
 
   private async Task LoadAllQuestions()
@@ -113,15 +145,6 @@ else
   private async Task LoadCurrentQuestion()
   {
     currentQuestion = await GameService.GetCurrentQuestion();
-
-    if (currentQuestion != null)
-    {
-      gameState = GameState.InProgress;
-    }
-    else
-    {
-      gameState = GameState.NotStarted;
-    }
   }
 
   private void ToggleSelectAll(ChangeEventArgs e)

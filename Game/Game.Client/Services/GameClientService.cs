@@ -20,11 +20,20 @@ namespace Game.Client.Services
 
     public async Task<Question?> GetCurrentQuestion()
     {
-      return await _httpClient.GetFromJsonAsync<Question>($"api/game/currentQuestion");
+      try
+      {
+        return await _httpClient.GetFromJsonAsync<Question?>($"api/game/currentQuestion");
+      }
+      catch (Exception)
+      {
+        return null;
+      }
     }
 
     public async Task NextQuestion() => await _httpClient.PostAsync("api/game/next", null);
     public async Task StartGame(List<Question> questions) => await _httpClient.PostAsJsonAsync("api/game/start", questions);
     public async Task EndGame() => await _httpClient.PostAsync("api/game/end", null);
+    public async Task ResetGame() => await _httpClient.PostAsync("api/game/reset", null);
+    public async Task ShowGameStats() => await _httpClient.PostAsync("api/game/stats", null);
   }
 }

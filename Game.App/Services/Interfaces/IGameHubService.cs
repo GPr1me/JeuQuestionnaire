@@ -7,6 +7,7 @@
     Task SendGoSignal();
     Task SendPlayerList(string jsonData);
     Task SendScore(string playerId, string jsonData);
+    Task SendState(string jsonData);
     Task SendStopSignal();
   }
 }

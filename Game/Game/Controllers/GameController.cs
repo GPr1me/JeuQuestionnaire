@@ -18,33 +18,49 @@ namespace Game.Controllers
 
     [HttpPost]
     [Route("start")]
-    public IActionResult StartGame([FromBody] List<Question> questions)
+    public async Task<IActionResult> StartGame([FromBody] List<Question> questions)
     {
-      _gameService.StartGame(questions);
+      await _gameService.StartGame(questions);
       return Ok();
     }
 
     [HttpPost]
     [Route("next")]
-    public IActionResult NextQuestion()
+    public async Task<IActionResult> NextQuestion()
     {
-      _gameService.NextQuestion();
+      await _gameService.NextQuestion();
       return Ok();
     }
 
     [HttpPost]
     [Route("end")]
-    public IActionResult EndGame()
+    public async Task<IActionResult> EndGame()
     {
-      _gameService.EndGame();
+      await _gameService.EndGame();
+      return Ok();
+    }
+
+    [HttpPost]
+    [Route("reset")]
+    public async Task<IActionResult> ResetGame()
+    {
+      await _gameService.ResetGame();
+      return Ok();
+    }
+
+    [HttpPost]
+    [Route("stats")]
+    public async Task<IActionResult> ShowGameStats()
+    {
+      await _gameService.SendScores();
       return Ok();
     }
 
     [HttpGet]
     [Route("currentQuestion")]
-    public IActionResult GetCurrentQuestion()
+    public async Task<IActionResult> GetCurrentQuestion()
     {
-      var question = _gameService.GetCurrentQuestion();
+      var question = await _gameService.GetCurrentQuestion();
       if (question == null)
       {
         return NoContent();

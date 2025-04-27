@@ -1,4 +1,5 @@
 ﻿using Game.App.Services.Interfaces;
+using Game.Core.Models;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Game.SignalR.Connector
@@ -24,18 +25,22 @@ namespace Game.SignalR.Connector
     public override async Task OnConnectedAsync()
     {
       await base.OnConnectedAsync();
+      await RegisterPlayer();
+    }
 
+    #region Commands
+
+    public async Task RegisterPlayer()
+    {
       _gameService.AddPlayer(Context.ConnectionId);
       await _gameService.SendPlayerList();
       await Clients.Caller.SendAsync("YourName", _gameService.Players[Context.ConnectionId]);
     }
 
-    #region Commands  
-
     public async Task SendMessage(string message)
     {
       await Clients.All.SendAsync("ReceiveMessage", message);
-      _gameService.SendMessage(Context.ConnectionId, message);
+      await _gameService.SendMessage(Context.ConnectionId, message);
       await _gameService.SendChatHistory();
     }
 
@@ -45,6 +50,16 @@ namespace Game.SignalR.Connector
       _gameService.RenamePlayerById(Context.ConnectionId, name);
       string newName = _gameService.Players[Context.ConnectionId].Name;
       return Clients.Caller.SendAsync("PlayerNameChanged", oldName, newName);
+    }
+
+    public async Task CurrentQuestionUpdated(string jsonData)
+    {
+      await Clients.All.SendAsync(HubEnpoints.CurrentQuestionUpdated, jsonData);
+    }
+
+    public async Task GamePlayerUpdated(string jsonData)
+    {
+      await Clients.All.SendAsync(HubEnpoints.GamePlayerUpdated, jsonData);
     }
 
     #endregion

@@ -21,9 +21,9 @@ namespace Game.Services
       return Task.CompletedTask;
     }
 
-    public Task<Question?> GetCurrentQuestion()
+    public async Task<Question?> GetCurrentQuestion()
     {
-      return Task.FromResult(_gameService.GetCurrentQuestion());
+      return await _gameService.GetCurrentQuestion();
     }
 
     public async Task<List<Question>> GetQuestions()
@@ -40,6 +40,18 @@ namespace Game.Services
     public Task StartGame(List<Question> questions)
     {
       _gameService.StartGame(questions);
+      return Task.CompletedTask;
+    }
+
+    public Task ResetGame()
+    {
+      _gameService.ResetGame();
+      return Task.CompletedTask;
+    }
+
+    public Task ShowGameStats()
+    {
+      _gameService.SendScores();
       return Task.CompletedTask;
     }
   }

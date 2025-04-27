@@ -1,11 +1,15 @@
+using Game.App.Services.Interfaces;
 using Game.Client.Services;
 using Game.Client.Services.Interfaces;
+using Game.SignalR.Connector;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using SignalR.Client;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
 
-var serverUrl = !builder.HostEnvironment.IsDevelopment() ? Environment.GetEnvironmentVariable("ServerUrl") : builder.HostEnvironment.BaseAddress;
+var serverUrl = builder.HostEnvironment.BaseAddress;
+//var serverUrl = !builder.HostEnvironment.IsDevelopment() ? Environment.GetEnvironmentVariable("ServerUrl")! : builder.HostEnvironment.BaseAddress!;
 
 builder.Services.AddSingleton<IQuestionService, QuestionService>();
 builder.Services.AddSingleton<IGameClientService, GameClientService>();
@@ -18,11 +22,16 @@ builder.Services.AddSingleton<IGameClientService, GameClientService>();
 
 builder.Services.AddHttpClient<IQuestionService, QuestionService>(client =>
 {
-  client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
+  client.BaseAddress = new Uri(serverUrl);
 });
 builder.Services.AddHttpClient<IGameClientService, GameClientService>(client =>
 {
-  client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
+  client.BaseAddress = new Uri(serverUrl);
+});
+
+builder.Services.AddScoped<IHubClient>(HubClient =>
+{
+  return new HubClient(serverUrl + GameHub.HubUrl);
 });
 
 

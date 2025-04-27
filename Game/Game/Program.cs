@@ -31,6 +31,7 @@ builder.Services.AddSingleton<IGameLinkService, GameLinkService>();
 builder.Services.AddSingleton<IGameService, GameService>();
 builder.Services.AddScoped<IGameClientService, GameClientService>();
 builder.Services.AddScoped<IQuestionService, QuestionService>();
+builder.Services.AddScoped<IHubClient, DummyHubClient>();
 
 // Executors
 builder.Services.AddScoped<IQuestionExecutor, QuestionExecutor>();

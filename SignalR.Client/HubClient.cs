@@ -1,23 +1,14 @@
-﻿using Microsoft.AspNetCore.SignalR.Client;
-using Microsoft.Extensions.Logging;
+﻿using Game.App.Services.Interfaces;
+using Microsoft.AspNetCore.SignalR.Client;
 using Newtonsoft.Json;
 
 namespace SignalR.Client
 {
-  public class HubClient
+  public class HubClient(string url) : IHubClient, IAsyncDisposable
   {
-    private readonly HubConnection _hubConnection;
-    private readonly ILogger<HubClient> _logger;
+    private readonly HubConnection _hubConnection = new HubConnectionBuilder().WithUrl(url).Build();
 
     public bool IsConnected { get => _hubConnection.State == HubConnectionState.Connected; }
-
-    public HubClient(HubConnectionSettings settings, ILogger<HubClient> logger)
-    {
-      _hubConnection = new HubConnectionBuilder().WithUrl(settings.Url)
-                                                 .WithAutomaticReconnect(settings.RetryPolicy)
-                                                 .Build();
-      _logger = logger;
-    }
 
     public async Task OpenConnection()
     {
@@ -35,24 +26,16 @@ namespace SignalR.Client
 
     private Task OnClose(Exception? e)
     {
-      if (e != null) _logger.LogError("SignalR hub reconnection error: {exception}", e);
-      else _logger.LogInformation("SignalR hub reconnection in progress.");
-
       return Task.CompletedTask;
     }
 
     private Task OnReconnected(string? connectionId)
     {
-
-
       return Task.CompletedTask;
     }
 
     private Task OnReconnecting(Exception? e)
     {
-      if (e != null) _logger.LogError("SignalR hub reconnection error: {exception}", e);
-      else _logger.LogInformation("SignalR hub reconnection in progress.");
-
       return Task.CompletedTask;
     }
 
@@ -63,5 +46,17 @@ namespace SignalR.Client
       var convertedArg = (T) JsonConvert.DeserializeObject(arg, typeof(T))!;
       handler(convertedArg);
     });
+
+    public void Send(string methodName, object arg)
+    {
+      var serializedArg = JsonConvert.SerializeObject(arg);
+      _hubConnection.SendAsync(methodName, serializedArg);
+    }
+
+    public ValueTask DisposeAsync()
+    {
+      GC.SuppressFinalize(this);
+      return ((IAsyncDisposable) _hubConnection).DisposeAsync();
+    }
   }
 }

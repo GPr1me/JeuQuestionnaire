@@ -1,4 +1,6 @@
-﻿using Game.App.Services.Interfaces;
+﻿using Game.App.Enum;
+using Game.App.Services.Interfaces;
+using Game.Core.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -29,7 +31,7 @@ namespace Game.Services
       await _hubService.SendChatHistory(jsonData);
     }
 
-    public async Task SendPlayerList(ICollection<string> playerList)
+    public async Task SendPlayerList(ICollection<Player> playerList)
     {
       var jsonData = JsonConvert.SerializeObject(playerList, jsonSerializerSettings);
       await _hubService.SendPlayerList(jsonData);
@@ -49,6 +51,12 @@ namespace Game.Services
     public async Task SendStopSignal()
     {
       await _hubService.SendStopSignal();
+    }
+
+    public async Task SendState(GameState state)
+    {
+      var jsonData = JsonConvert.SerializeObject(state, jsonSerializerSettings);
+      await _hubService.SendState(jsonData);
     }
 
     public async Task SendScore(string playerId, int score)
