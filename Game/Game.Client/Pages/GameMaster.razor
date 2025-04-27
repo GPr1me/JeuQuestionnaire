@@ -19,8 +19,9 @@
 <button @onclick="NextQuestion">Next Question</button>
 <button @onclick="EndGame">End Game</button>
 <button @onclick="ResetGame">Reset Game</button>
-<button @onclick="ToggleShowCurrentQuestion">Show Current Question</button>
-<button @onclick="ToggleShowScores">Show Scores</button>
+<button @onclick="ToggleShowCurrentQuestion">@(gamePlayerState.ShowQuestion ? "Hide" : "Show") Current Question</button>
+<button @onclick="ToggleShowAnswer">@(gamePlayerState.ShowAnswer ? "Hide" : "Show") Answer</button>
+<button @onclick="ToggleShowScores">@(gamePlayerState.ShowScore ? "Hide" : "Show") Scores</button>
 
 <h4>Questions</h4>
 <input type="checkbox" checked="@selectAll" @onchange="ToggleSelectAll" /> Select All: @selectAll
@@ -129,6 +130,12 @@ else
   {
     gamePlayerState.ShowQuestion = !gamePlayerState.ShowQuestion;
     Send(HubEnpoints.CurrentQuestionUpdated, currentQuestion);
+    Send(HubEnpoints.GamePlayerUpdated, gamePlayerState);
+  }
+
+  private void ToggleShowAnswer()
+  {
+    gamePlayerState.ShowAnswer = !gamePlayerState.ShowAnswer;
     Send(HubEnpoints.GamePlayerUpdated, gamePlayerState);
   }
 
