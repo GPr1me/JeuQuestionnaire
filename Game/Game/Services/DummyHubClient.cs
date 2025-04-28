@@ -11,7 +11,7 @@ namespace Game.Services
       return new DummyDisposable();
     }
 
-    public Task OpenConnection()
+    public Task OpenConnection(Func<Exception?, Task>? onClose, Func<string?, Task>? onRecconnected, Func<Exception?, Task>? onReconnecting)
     {
       return Task.CompletedTask;
     }

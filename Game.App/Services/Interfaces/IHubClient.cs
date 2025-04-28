@@ -5,7 +5,7 @@
     bool IsConnected { get; }
 
     IDisposable On<T>(string methodName, Action<T> handler);
-    Task OpenConnection();
+    Task OpenConnection(Func<Exception?, Task>? onClose, Func<string?, Task>? onRecconnected, Func<Exception?, Task>? onReconnecting);
     void Send(string methodName, object arg);
   }
 }

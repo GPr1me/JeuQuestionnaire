@@ -1,6 +1,7 @@
 ﻿using Game.App.Services.Interfaces;
 using Game.Core.Models;
 using Microsoft.AspNetCore.SignalR;
+using Newtonsoft.Json;
 
 namespace Game.SignalR.Connector
 {
@@ -25,23 +26,22 @@ namespace Game.SignalR.Connector
     public override async Task OnConnectedAsync()
     {
       await base.OnConnectedAsync();
-      await RegisterPlayer();
     }
 
     #region Commands
 
-    public async Task RegisterPlayer()
+    public async Task RegisterPlayer(string arg)
     {
       _gameService.AddPlayer(Context.ConnectionId);
       await _gameService.SendPlayerList();
       await Clients.Caller.SendAsync("YourName", _gameService.Players[Context.ConnectionId]);
     }
 
-    public async Task SendMessage(string message)
+    public async Task SendMessage(string arg)
     {
+      string message = JsonConvert.DeserializeObject<string>(arg)!;
       await Clients.All.SendAsync("ReceiveMessage", message);
       await _gameService.SendMessage(Context.ConnectionId, message);
-      await _gameService.SendChatHistory();
     }
 
     public Task ChangeName(string name)

@@ -15,11 +15,11 @@
 
 <div>
   <h4>Connected Users</h4>
-    @foreach (var player in players)
-    {
-      <div style="display: flex; gap: 10px; background-color: lightblue; padding: 5px; margin: 5px;">
-        <div>
-          <strong>@player.Name</strong>
+  @foreach (var player in players)
+  {
+    <div style="display: flex; gap: 10px; background-color: lightblue; padding: 5px; margin: 5px;">
+      <div>
+        <strong>@player.Name</strong>
       </div>
       <div>
         <strong>Score:</strong> @player.Score
@@ -27,8 +27,8 @@
       <div>
         <p>Msg:</p> @player.LastMessage
       </div>
-      </div>
-    }
+    </div>
+  }
 </div>
 
 <div>
@@ -40,6 +40,7 @@
 
 <input @bind="message" placeholder="Type a message" />
 <button @onclick="SendMessage">Send</button>
+<button @onclick="Connect">Connect</button>
 
 @code {
   private string chatHistory = "init";
@@ -55,11 +56,17 @@
     });
 
     await InitializeAsync();
+    Connect();
   }
 
   private void SendMessage()
   {
-      Send("SendMessage", message);
-      message = string.Empty;
+    Send(HubEnpoints.SendMessage, message);
+    message = string.Empty;
+  }
+
+  private void Connect()
+  {
+    Send(HubEnpoints.RegisterPlayer, null);
   }
 }

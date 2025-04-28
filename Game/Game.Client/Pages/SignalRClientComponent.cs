@@ -11,9 +11,11 @@ namespace Game.Client.Pages
     [Inject]
     public required IHubClient Hub { get; set; }
 
-    protected async Task InitializeAsync()
+    protected async Task InitializeAsync(Func<Exception?, Task>? onClose = null,
+                                         Func<string?, Task>? onReconnected = null,
+                                         Func<Exception?, Task>? onReconnecting = null)
     {
-      await Hub.OpenConnection();
+      await Hub.OpenConnection(onClose, onReconnected, onReconnecting);
     }
 
     protected void AddOnEventListener<T>(string methodName, Action<T> handler)

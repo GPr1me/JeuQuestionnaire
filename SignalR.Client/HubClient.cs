@@ -10,36 +10,19 @@ namespace SignalR.Client
 
     public bool IsConnected { get => _hubConnection.State == HubConnectionState.Connected; }
 
-    public async Task OpenConnection()
+    public async Task OpenConnection(Func<Exception?, Task>? onClose,
+                                     Func<string?, Task>? onReconnected,
+                                     Func<Exception?, Task>? onReconnecting)
     {
       if (!IsConnected)
       {
-        _hubConnection.Closed += OnClose;
-        _hubConnection.Reconnecting += OnReconnecting;
-        _hubConnection.Reconnected += OnReconnected;
+        _hubConnection.Closed += onClose;
+        _hubConnection.Reconnecting += onReconnecting;
+        _hubConnection.Reconnected += onReconnected;
 
         await _hubConnection.StartAsync();
       }
     }
-
-    #region HubConnection Events
-
-    private Task OnClose(Exception? e)
-    {
-      return Task.CompletedTask;
-    }
-
-    private Task OnReconnected(string? connectionId)
-    {
-      return Task.CompletedTask;
-    }
-
-    private Task OnReconnecting(Exception? e)
-    {
-      return Task.CompletedTask;
-    }
-
-    #endregion
 
     public IDisposable On<T>(string methodName, Action<T> handler) => _hubConnection.On(methodName, (string arg) =>
     {

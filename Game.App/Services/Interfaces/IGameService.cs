@@ -11,7 +11,6 @@ namespace Game.App.Services.Interfaces
     void RemovePlayer(string playerId);
     void RenamePlayerById(string playerId, string newName);
     void RenamePlayerByValue(string oldName, string newName);
-    Task SendChatHistory();
     Task SendMessage(string playerId, string message);
     Task SendPlayerList();
 

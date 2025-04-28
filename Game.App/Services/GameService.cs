@@ -17,7 +17,6 @@ namespace Game.App.Services
     }
 
     public ConcurrentDictionary<string, Player> Players { get; private set; } = [];
-    private readonly ConcurrentDictionary<string, List<string>> _chatHistory = new();
     private readonly List<Question> _questions = [];
     private int _currentQuestionIndex = -1;
 
@@ -28,23 +27,20 @@ namespace Game.App.Services
 
     public void AddPlayer(string playerId)
     {
-      Players[playerId] = new Player(playerId);
-      _chatHistory.TryAdd(playerId, []);
+      Players.TryAdd(playerId, new Player(playerId));
     }
 
     public void RemovePlayer(string playerId)
     {
       Players.TryRemove(playerId, out _);
-      _chatHistory.TryRemove(playerId, out _);
     }
 
     public async Task SendMessage(string playerId, string message)
     {
-      if (_chatHistory.TryGetValue(playerId, out List<string>? value))
+      if (Players.ContainsKey(playerId))
       {
-        value.Add(message);
+        await SubmitAnswer(playerId, message);
       }
-      await SubmitAnswer(playerId, message);
     }
 
     public void RenamePlayerByValue(string oldName, string newName)
@@ -63,8 +59,6 @@ namespace Game.App.Services
 
     public async Task SendPlayerList() => await _gameLinkService.SendPlayerList(Players.Values);
 
-    public async Task SendChatHistory() => await _gameLinkService.SendChatHistory([.. _chatHistory.Values.SelectMany(x => x)]);
-
     public void AddQuestion(Question question) => _questions.Add(question);
 
     public async Task<Question?> GetCurrentQuestion()
@@ -79,6 +73,8 @@ namespace Game.App.Services
         await SetState(GameState.NotStarted);
         return null;
       }
+
+      await SendPlayerList();
     }
 
     public async Task StartGame(List<Question> questions)
@@ -92,6 +88,8 @@ namespace Game.App.Services
 
       _questions.AddRange(questions);
       await SetState(GameState.InProgress);
+
+      await SendPlayerList();
     }
 
     public async Task NextQuestion()
@@ -110,6 +108,8 @@ namespace Game.App.Services
       }
 
       await _gameLinkService.SendGoSignal();
+
+      await SendPlayerList();
     }
 
     public async Task EndGame()
@@ -118,6 +118,8 @@ namespace Game.App.Services
       _questions.Clear();
       await SetState(GameState.Finished);
       await _gameLinkService.SendStopSignal();
+
+      await SendPlayerList();
     }
 
     public async Task ResetGame()
@@ -164,17 +166,18 @@ namespace Game.App.Services
       }
     }
 
-    private void CompileScores()
+    private async Task CompileScores()
     {
       var answer = _questions[_currentQuestionIndex].CorrectAnswerAlphanumeric;
 
-      foreach (var player in Players)
+      foreach (var player in Players.Values)
       {
-        if (player.Value.LastMessage == answer)
+        if (player.LastMessage == answer)
         {
-          player.Value.ClearLastMessage();
+          player.Score++;
         }
       }
+      await SendPlayerList();
     }
   }
 }
