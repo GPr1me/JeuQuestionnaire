@@ -40,7 +40,6 @@
 
 <input @bind="message" placeholder="Type a message" />
 <button @onclick="SendMessage">Send</button>
-<button @onclick="Connect">Connect</button>
 
 @code {
   private string chatHistory = "init";
@@ -56,17 +55,11 @@
     });
 
     await InitializeAsync();
-    Connect();
   }
 
   private void SendMessage()
   {
     Send(HubEnpoints.SendMessage, message);
     message = string.Empty;
-  }
-
-  private void Connect()
-  {
-    Send(HubEnpoints.RegisterPlayer, null);
   }
 }

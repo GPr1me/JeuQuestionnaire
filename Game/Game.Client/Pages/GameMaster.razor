@@ -22,6 +22,7 @@
 <button @onclick="ToggleShowCurrentQuestion">@(gamePlayerState.ShowQuestion ? "Hide" : "Show") Current Question</button>
 <button @onclick="ToggleShowAnswer">@(gamePlayerState.ShowAnswer ? "Hide" : "Show") Answer</button>
 <button @onclick="ToggleShowScores">@(gamePlayerState.ShowScore ? "Hide" : "Show") Scores</button>
+<button @onclick="Unregister">Unregister</button>
 
 <h4>Questions</h4>
 <input type="checkbox" checked="@selectAll" @onchange="ToggleSelectAll" /> Select All: @selectAll
@@ -162,11 +163,8 @@ else
     }
   }
 
-  public async ValueTask DisposeAsync()
+  private void Unregister()
   {
-    if (hubConnection is not null)
-    {
-      await hubConnection.DisposeAsync();
-    }
+    Send(HubEnpoints.UnregisterPlayer, null);
   }
 }

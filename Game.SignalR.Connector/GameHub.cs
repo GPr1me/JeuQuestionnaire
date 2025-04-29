@@ -26,15 +26,22 @@ namespace Game.SignalR.Connector
     public override async Task OnConnectedAsync()
     {
       await base.OnConnectedAsync();
+      await RegisterPlayer();
     }
 
     #region Commands
 
-    public async Task RegisterPlayer(string arg)
+    public async Task RegisterPlayer()
     {
       _gameService.AddPlayer(Context.ConnectionId);
       await _gameService.SendPlayerList();
       await Clients.Caller.SendAsync("YourName", _gameService.Players[Context.ConnectionId]);
+    }
+
+    public async Task UnregisterPlayer(string arg)
+    {
+      _gameService.RemovePlayer(Context.ConnectionId);
+      await _gameService.SendPlayerList();
     }
 
     public async Task SendMessage(string arg)
