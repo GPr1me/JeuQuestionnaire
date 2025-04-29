@@ -30,9 +30,9 @@ namespace SignalR.Client
       handler(convertedArg);
     });
 
-    public void Send(string methodName, object arg)
+    public void Send(string methodName, object? arg)
     {
-      var serializedArg = JsonConvert.SerializeObject(arg);
+      var serializedArg = arg is string stringArg ? stringArg : JsonConvert.SerializeObject(arg);
       _hubConnection.SendAsync(methodName, serializedArg);
     }
 

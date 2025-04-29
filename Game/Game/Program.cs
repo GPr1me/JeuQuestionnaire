@@ -12,7 +12,6 @@ using Game.SignalR.Connector;
 using Game.SignalR.Connector.Services;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -69,12 +68,6 @@ builder.Services.AddResponseCompression(opts =>
 {
   opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
       ["application/octet-stream"]);
-});
-
-// Add Swagger services
-builder.Services.AddSwaggerGen(c =>
-{
-  c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
 });
 
 var app = builder.Build();

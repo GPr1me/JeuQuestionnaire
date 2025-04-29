@@ -35,18 +35,18 @@ namespace Game.SignalR.Connector
     {
       _gameService.AddPlayer(Context.ConnectionId);
       await _gameService.SendPlayerList();
-      await Clients.Caller.SendAsync("YourName", _gameService.Players[Context.ConnectionId]);
+      await Clients.Caller.SendAsync("YourName", JsonConvert.SerializeObject(_gameService.Players[Context.ConnectionId]));
     }
 
     public async Task UnregisterPlayer(string arg)
     {
       _gameService.RemovePlayer(Context.ConnectionId);
       await _gameService.SendPlayerList();
+      await Clients.Caller.SendAsync("UnregisterPlayer", arg);
     }
 
-    public async Task SendMessage(string arg)
+    public async Task SendMessage(string message)
     {
-      string message = JsonConvert.DeserializeObject<string>(arg)!;
       await Clients.All.SendAsync("ReceiveMessage", message);
       await _gameService.SendMessage(Context.ConnectionId, message);
     }
