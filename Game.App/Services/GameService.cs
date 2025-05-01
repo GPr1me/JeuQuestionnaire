@@ -73,8 +73,6 @@ namespace Game.App.Services
         await SetState(GameState.NotStarted);
         return null;
       }
-
-      await SendPlayerList();
     }
 
     public async Task StartGame(List<Question> questions)
@@ -96,7 +94,7 @@ namespace Game.App.Services
     {
       if (State != GameState.InProgress) return;
 
-      CompileScores();
+      await CompileScores();
 
       _currentQuestionIndex++;
       if (_currentQuestionIndex < _questions.Count - 1)
@@ -175,6 +173,7 @@ namespace Game.App.Services
         if (player.LastMessage == answer)
         {
           player.Score++;
+          await _gameLinkService.SendScore(player.Id, player.Score);
         }
       }
       await SendPlayerList();
