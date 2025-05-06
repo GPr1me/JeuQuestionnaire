@@ -2,6 +2,7 @@
 @using Game.Client.Services
 @using Game.Client.Services.Interfaces
 @using Game.Core.Models
+@using Game.Core.Models.Interfaces
 @inject IQuestionService QuestionService
 
 @rendermode InteractiveWebAssembly
@@ -19,7 +20,7 @@ else
     @foreach (var question in _questions)
     {
       <li>
-        @question.Text
+        @((MarkupString) question.Text)
         <button @onclick="() => EditQuestion(question)">Edit</button>
         <button @onclick="() => DeleteQuestion(question.Id)">Delete</button>
       </li>
@@ -33,12 +34,13 @@ else
 {
   <h4>@(_selectedQuestion.IsNew ? "Add New Question" : "Edit Question")</h4>
   <EditForm Model="_selectedQuestion.Question" OnValidSubmit="SaveQuestion">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+  <DataAnnotationsValidator />
+  <ValidationSummary />
 
     <div>
       <label for="text">Question Text:</label>
       <input id="text" @bind="_selectedQuestion.Question.Text" class="form-control" />
+      <InputFile OnChange="(e) => UploadImage(e, _selectedQuestion.Question)" />
     </div>
 
     <div>
@@ -50,6 +52,7 @@ else
             <div class="d-flex align-items-center">
               <input type="radio" id="radio_@option.Id" name="correctOption" checked="@option.IsCorrect" @onchange="() => SetCorrectOption(option)" class="me-2" />
               <input type="text" id="text_@option.Id" @bind="option.Text" class="form-control" />
+              <InputFile OnChange="(e) => UploadImage(e, option)" />
             </div>
           </div>
         }
@@ -139,5 +142,13 @@ else
   private void CancelEdit()
   {
     _selectedQuestion.Question = null;
+  }
+
+  private async Task UploadImage(InputFileChangeEventArgs e, IMarkupText textModel)
+  {
+    if (e.File == null) return;
+    
+    var imagePath = await QuestionService.UploadContent(e.File);
+    textModel.Text += $" <img src='{imagePath}' height='300' />";
   }
 }

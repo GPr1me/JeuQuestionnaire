@@ -1,4 +1,5 @@
 ﻿using Game.Core.Models;
+using Microsoft.AspNetCore.Components.Forms;
 
 namespace Game.Client.Services.Interfaces
 {
@@ -9,5 +10,6 @@ namespace Game.Client.Services.Interfaces
     Task<Question> Get(Guid id);
     Task<List<Question>> GetAll();
     Task Update(Question question);
+    Task<string> UploadContent(IBrowserFile file);
   }
 }

@@ -1,6 +1,7 @@
 ﻿using Game.App.Services.Interfaces;
 using Game.Client.Services.Interfaces;
 using Game.Core.Models;
+using Microsoft.AspNetCore.Components.Forms;
 
 namespace Game.Services
 {
@@ -35,6 +36,12 @@ namespace Game.Services
     public async Task Update(Question question)
     {
       await _executor.Update(question);
+    }
+
+    public Task<string> UploadContent(IBrowserFile file)
+    {
+      // This method is not implemented in the executor, so it will throw a NotImplementedException
+      throw new NotImplementedException("UploadContent is not implemented in the executor.");
     }
   }
 }

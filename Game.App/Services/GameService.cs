@@ -7,6 +7,7 @@ namespace Game.App.Services
 {
   public class GameService : IGameService
   {
+    private string _gameMasterId = string.Empty;
     private readonly IGameLinkService _gameLinkService;
     public GameState State { get; private set; } = GameState.NotStarted;
 
@@ -23,6 +24,12 @@ namespace Game.App.Services
     public GameService(IGameLinkService gameLinkService)
     {
       _gameLinkService = gameLinkService;
+    }
+
+    public void RegisterGameMaster(string playerId)
+    {
+      _gameMasterId = playerId;
+      Players.Remove(playerId, out _);
     }
 
     public void AddPlayer(string playerId)

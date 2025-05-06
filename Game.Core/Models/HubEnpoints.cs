@@ -3,6 +3,7 @@
   public static class HubEnpoints
   {
     public const string RegisterPlayer = "RegisterPlayer";
+    public const string RegisterGameMaster = "RegisterGameMaster";
     public const string UnregisterPlayer = "UnregisterPlayer";
     public const string SendMessage = "SendMessage";
     public const string PlayerListUpdated = "PlayerListUpdated";

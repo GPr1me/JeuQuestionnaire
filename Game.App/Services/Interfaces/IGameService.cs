@@ -24,5 +24,6 @@ namespace Game.App.Services.Interfaces
     Task ResetGame();
     Task SendScores();
     Task SendDelayGoSignal(int delaySec);
+    void RegisterGameMaster(string playerId);
   }
 }

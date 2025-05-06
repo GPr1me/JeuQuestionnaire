@@ -39,13 +39,26 @@
 <h4>Current Question</h4>
 @if (currentQuestion != null)
 {
-  <p>@currentQuestion.Text</p>
-  <ul>
-    @foreach (var option in currentQuestion.Options)
-    {
-      <li>@option.Text</li>
+  <p>
+    @((MarkupString) currentQuestion.Text)
+  </p>
+  <ol type="A">
+    @for (int i = 0; i < currentQuestion.Options.Count; i++)  
+    {  
+       var option = currentQuestion.Options[i];  
+       var borderColor = i switch  
+       {  
+           0 => "red",  
+           1 => "blue",  
+           2 => "yellow",  
+           3 => "green",  
+           _ => "black"  
+       };  
+       <li style="border: 2px solid @borderColor; padding: 5px;">
+        @((MarkupString) option.Text)
+      </li>  
     }
-  </ul>
+  </ol>
 }
 else
 {
@@ -74,6 +87,7 @@ else
   private readonly List<Question> questions = new();
   private Dictionary<Guid, bool> selectedQuestions = new();
   private bool selectAll = false;
+  private bool isRegistered = false;
   private GameState gameState = GameState.NotStarted;
   private GamePlayerState gamePlayerState = new();
 
@@ -85,6 +99,12 @@ else
     {
       players.Clear();
       players.AddRange(message);
+
+    if (!isRegistered)
+    {
+      isRegistered = true;
+      Send(HubEnpoints.RegisterGameMaster, null);
+    }
     });
 
     AddOnEventListener<GameState>(HubEnpoints.StateUpdated, (message) => gameState = message);
@@ -165,6 +185,6 @@ else
 
   private void Unregister()
   {
-    Send(HubEnpoints.UnregisterPlayer, null);
+    Send(HubEnpoints.RegisterGameMaster, null);
   }
 }

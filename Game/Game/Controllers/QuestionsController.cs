@@ -6,11 +6,13 @@ using Microsoft.AspNetCore.Mvc;
 [Route("api/questions")]
 public class QuestionsController : ControllerBase
 {
+  private readonly IWebHostEnvironment _env;
   private readonly IQuestionExecutor _questionExecutor;
 
-  public QuestionsController(IQuestionExecutor questionExecutor)
+  public QuestionsController(IQuestionExecutor questionExecutor, IWebHostEnvironment env)
   {
     _questionExecutor = questionExecutor;
+    _env = env;
   }
 
   [HttpGet]
@@ -54,5 +56,26 @@ public class QuestionsController : ControllerBase
   {
     await _questionExecutor.Delete(id);
     return NoContent();
+  }
+
+  [HttpPost]
+  [Route("uploadContent")]
+  public async Task<IActionResult> UploadContent([FromForm] IFormFile file)
+  {
+    if (file == null || file.Length == 0)
+      return BadRequest("No file uploaded.");
+
+    var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads");
+    if (!Directory.Exists(uploadsFolder))
+      Directory.CreateDirectory(uploadsFolder);
+
+    var filePath = Path.Combine(uploadsFolder, file.FileName);
+    using (var stream = new FileStream(filePath, FileMode.Create))
+    {
+      await file.CopyToAsync(stream);
+    }
+
+    var relativePath = $"/uploads/{file.FileName}";
+    return Ok(relativePath);
   }
 }

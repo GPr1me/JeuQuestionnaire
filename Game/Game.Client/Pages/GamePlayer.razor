@@ -11,14 +11,23 @@
 <h3>Jeu</h3>
 <h4>@gameState.ToString()</h4>
 
-@if (currentQuestion != null && gamePlayerState.ShowQuestion && !gamePlayerState.ShowScore)
+@if (currentQuestion != null && gamePlayerState.ShowQuestion)
 {
-  <p>@currentQuestion.Text</p>
-  <ul>
+  <p>@((MarkupString) currentQuestion.Text)</p>
+  <ol type="A">
     @for (int i = 0; i < currentQuestion.Options.Count; i++)
     {
-      <li style="border: @(currentQuestion.Options[i].IsCorrect && gamePlayerState.ShowAnswer ? "2px solid green" : "none"); padding: 5px; margin: 5px;">
-        @currentQuestion.Options[i].Text
+      var option = currentQuestion.Options[i];
+      var borderColor = i switch
+      {
+        0 => "red",
+        1 => "blue",
+        2 => "yellow",
+        3 => "green",
+        _ => "black"
+      };
+      <li style="background-color: @(currentQuestion.Options[i].IsCorrect && gamePlayerState.ShowAnswer ? borderColor : "none"); color: @(currentQuestion.Options[i].IsCorrect && gamePlayerState.ShowAnswer ? "white" : "black"); padding: 5px; margin: 5px; border: 2px solid @borderColor;">
+        @((MarkupString) currentQuestion.Options[i].Text)
         @if (gamePlayerState.ShowChat)
         {
           <div style="display: flex; gap: 10px; background-color: lightblue; padding: 5px; margin: 5px;">
@@ -32,9 +41,14 @@
         }
       </li>
     }
-  </ul>
+  </ol>
 }
-else if (gamePlayerState.ShowScore)
+else
+{
+  <p>Attente de la prochaine question...</p>
+}
+
+@if (gamePlayerState.ShowScore)
 {
   foreach (var player in players)
   {
@@ -48,22 +62,27 @@ else if (gamePlayerState.ShowScore)
     </div>
   }
 }
-else
-{
-  <p>Attente de la prochaine question...</p>
-}
 
 @code {
   private Question? currentQuestion;
   private GameState? gameState;
   private GamePlayerState gamePlayerState = new();
   private List<Player> players = [];
+  private bool isRegistered = true;
 
   private static readonly string[] possibleAnswers = { "A", "B", "C", "D" };
 
   protected override async Task OnInitializedAsync()
   {
-    AddOnEventListener<GameState>(HubEnpoints.StateUpdated, (newState) => gameState = newState);
+    AddOnEventListener<GameState>(HubEnpoints.StateUpdated, (newState) =>
+    {
+      gameState = newState;
+      if (isRegistered)
+      {
+        isRegistered = false;
+        Send(HubEnpoints.UnregisterPlayer, null);
+      }
+    });
     AddOnEventListener<Question?>(HubEnpoints.CurrentQuestionUpdated, (question) => currentQuestion = question);
     AddOnEventListener<GamePlayerState>(HubEnpoints.GamePlayerUpdated, (state) => gamePlayerState = state);
     AddOnEventListener<List<Player>>(HubEnpoints.PlayerListUpdated, (message) =>

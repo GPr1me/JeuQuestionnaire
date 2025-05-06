@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -19,6 +19,10 @@
     <ProjectReference Include="..\..\Game.Core\Game.Core.csproj" />
     <ProjectReference Include="..\..\Game.SignalR.Connector\Game.SignalR.Connector.csproj" />
     <ProjectReference Include="..\..\SignalR.Client\SignalR.Client.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Update="Pages/*.razor.css" CssScope="custom-scope-identifier" />
   </ItemGroup>
 
 </Project>

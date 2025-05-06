@@ -1,6 +1,8 @@
+using Game.Core.Models.Interfaces;
+
 namespace Game.Core.Models
 {
-  public class Question
+  public class Question : IMarkupText
   {
     public required Guid Id { get; init; }
     public required string Text { get; set; }
