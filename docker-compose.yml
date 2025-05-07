@@ -16,6 +16,8 @@ services:
       GameContextOptions:Username: ${Username}
       GameContextOptions:Password: ${Password}
       ServerUrl: "http://localhost:8080/"
+    volumes:
+      - ./uploads:/app/uploads
     env_file:
       - .env
       

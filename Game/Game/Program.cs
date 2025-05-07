@@ -12,6 +12,7 @@ using Game.SignalR.Connector;
 using Game.SignalR.Connector.Services;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,6 +79,11 @@ using (var scope = app.Services.CreateScope())
   var db = scope.ServiceProvider.GetRequiredService<GameContext>();
   db.Database.Migrate();
 }
+app.UseStaticFiles(new StaticFileOptions
+{
+  FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "uploads")),
+  RequestPath = "/uploads"
+});
 
 app.UseResponseCompression();
 
