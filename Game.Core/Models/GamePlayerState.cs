@@ -7,5 +7,6 @@
     public bool ShowScore { get; set; } = false;
     public bool ShowChat { get; set; } = false;
     public bool ShowPlayerList { get; set; } = false;
+    public bool ShowQrCode { get; set; } = false;
   }
 }

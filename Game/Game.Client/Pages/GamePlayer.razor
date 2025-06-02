@@ -63,6 +63,14 @@ else
   }
 }
 
+@if (gamePlayerState.ShowQrCode)
+{
+  <div style="display: flex; justify-content: center; margin-top: 20px;">
+    <img src="/uploads/game-qr-code.png" alt="QR Code" style="max-width: 300px; max-height: 300px;" />
+    <img src="/uploads/wifi-qr-code.png" alt="QR Code" style="max-width: 300px; max-height: 300px;" />
+  </div>
+}
+
 @code {
   private Question? currentQuestion;
   private GameState? gameState;

@@ -22,6 +22,7 @@
 <button @onclick="ToggleShowCurrentQuestion">@(gamePlayerState.ShowQuestion ? "Hide" : "Show") Current Question</button>
 <button @onclick="ToggleShowAnswer">@(gamePlayerState.ShowAnswer ? "Hide" : "Show") Answer</button>
 <button @onclick="ToggleShowScores">@(gamePlayerState.ShowScore ? "Hide" : "Show") Scores</button>
+<button @onclick="ToggleShowQrCode">@(gamePlayerState.ShowQrCode ? "Hide" : "Show") QR Code</button>
 <button @onclick="Unregister">Unregister</button>
 
 <h4>Questions</h4>
@@ -172,6 +173,12 @@ else
     gamePlayerState.ShowScore = !gamePlayerState.ShowScore;
     Send(HubEnpoints.GamePlayerUpdated, gamePlayerState);
     await GameService.ShowGameStats();
+  }
+
+  private async Task ToggleShowQrCode()
+  {
+    gamePlayerState.ShowQrCode = !gamePlayerState.ShowQrCode;
+    Send(HubEnpoints.GamePlayerUpdated, gamePlayerState);
   }
 
   private void ToggleShowCurrentQuestion()
