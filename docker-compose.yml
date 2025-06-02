@@ -20,6 +20,8 @@ services:
       - ./uploads:/app/uploads
     env_file:
       - .env
+    # command: >
+    #   sh -c "chmod -R 777 /app/uploads && dotnet Game.dll"
       
   game.db:
     image: postgres:latest

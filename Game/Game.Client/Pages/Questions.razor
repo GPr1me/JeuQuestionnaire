@@ -44,6 +44,16 @@ else
     </div>
 
     <div>
+      <label for="category">Category:</label>
+      <input id="category" @bind="_selectedQuestion.Question.Category" class="form-control" />
+    </div>
+
+    <div>
+      <label for="notes">Notes:</label>
+      <textarea id="notes" @bind="_selectedQuestion.Question.Notes" class="form-control"></textarea>
+    </div>
+
+    <div>
       <label>Options:</label>
       <fieldset>
         @foreach (var option in _selectedQuestion.Question.Options)

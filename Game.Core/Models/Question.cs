@@ -6,6 +6,8 @@ namespace Game.Core.Models
   {
     public required Guid Id { get; init; }
     public required string Text { get; set; }
+    public string Category { get; set; } = string.Empty;
+    public string Notes { get; set; } = string.Empty;
     public List<Answer> Options { get; set; } = [];
     public Answer? CorrectAnswer { get => Options.FirstOrDefault(o => o.IsCorrect); }
     public string CorrectAnswerAlphanumeric

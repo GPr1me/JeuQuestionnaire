@@ -16,6 +16,8 @@ namespace Game.Dal.Mappings
       builder.Property(x => x.Text)
         .IsRequired()
         .HasMaxLength(1000);
+      builder.Property(x => x.Category).HasMaxLength(100);
+      builder.Property(x => x.Notes).HasMaxLength(1000);
 
       builder.HasMany(x => x.Options)
         .WithOne()

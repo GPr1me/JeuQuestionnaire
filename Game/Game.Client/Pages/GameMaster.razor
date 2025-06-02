@@ -26,19 +26,44 @@
 
 <h4>Questions</h4>
 <input type="checkbox" checked="@selectAll" @onchange="ToggleSelectAll" /> Select All
-<ul>
-  @foreach (var question in questions)
-  {
-    <li>
-      <input type="checkbox" @bind="selectedQuestions[question.Id]" />
-      @question.Text
-    </li>
-  }
-</ul>
+
+@foreach (var group in questions.GroupBy(q => q.Category))
+{
+  var category = group.Key ?? "Uncategorized";
+  var isCollapsed = collapsedCategories.TryGetValue(category, out var collapsed) && collapsed;
+  var allSelected = group.All(q => selectedQuestions[q.Id]);
+  var someSelected = group.Any(q => selectedQuestions[q.Id]);
+  <div class="category-group">
+    <button @onclick="() => ToggleCategoryCollapse(category)">
+      @(isCollapsed ? "▶" : "▼") @category
+    </button>
+    @if (!isCollapsed)
+    {
+      <div>
+        <input type="checkbox"
+               checked="@allSelected"
+               indeterminate="@(!allSelected && someSelected)"
+               @onchange="e => ToggleSelectCategory(e, group.ToList())" />
+        <label>Select All in @category</label>
+      </div>
+      <ul>
+        @foreach (var question in group)
+        {
+          <li>
+            <input type="checkbox" @bind="selectedQuestions[question.Id]" />
+            @question.Text
+          </li>
+        }
+      </ul>
+    }
+  </div>
+}
+
 
 <h4>Current Question</h4>
 @if (currentQuestion != null)
 {
+  <h5>Category:</h5><p>@currentQuestion.Category</p>
   <p>
     @((MarkupString) currentQuestion.Text)
   </p>
@@ -59,6 +84,7 @@
       </li>  
     }
   </ol>
+  <p>@currentQuestion.Notes</p>
 }
 else
 {
@@ -84,6 +110,7 @@ else
   private HubConnection? hubConnection;
   private List<Player> players = [];
   private Question? currentQuestion;
+  private Dictionary<string, bool> collapsedCategories = new();
   private readonly List<Question> questions = new();
   private Dictionary<Guid, bool> selectedQuestions = new();
   private bool selectAll = false;
@@ -163,7 +190,7 @@ else
   private async Task LoadAllQuestions()
   {
     var loadedQuestions = await GameService.GetQuestions();
-    questions.AddRange(loadedQuestions);
+    questions.AddRange(loadedQuestions.OrderBy(q => q.Category));
     foreach (var question in loadedQuestions)
     {
       selectedQuestions[question.Id] = false;
@@ -185,6 +212,26 @@ else
       selectedQuestions[key] = selectAll;
     }
   }
+
+  private void ToggleSelectCategory(ChangeEventArgs e, List<Question> categoryQuestions)
+  {
+    if (e.Value is bool isChecked)
+    {
+      foreach (var question in categoryQuestions)
+      {
+        selectedQuestions[question.Id] = isChecked;
+      }
+    }
+  }
+
+  private void ToggleCategoryCollapse(string category)
+  {
+    if (collapsedCategories.ContainsKey(category))
+      collapsedCategories[category] = !collapsedCategories[category];
+    else
+      collapsedCategories[category] = true;
+  }
+
 
   private void Unregister()
   {

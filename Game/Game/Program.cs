@@ -81,7 +81,7 @@ using (var scope = app.Services.CreateScope())
 }
 app.UseStaticFiles(new StaticFileOptions
 {
-  FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "uploads")),
+  FileProvider = new PhysicalFileProvider(Path.Combine(app.Environment.WebRootPath, "uploads")),
   RequestPath = "/uploads"
 });
 
